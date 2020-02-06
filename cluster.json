@@ -1,0 +1,51 @@
+{
+    "__default__":
+    {
+        "jobname": "default",
+        "mem": "12g",
+        "time": "02:00:00",
+        "partition":"norm",
+        "out"  : "./log/{rule}_{wildcards.sample}-%j.out"
+    },
+   
+    "macs2_broadpeak":
+    {
+    	"jobname":"macs2broad",
+        "time": "04:00:00"
+    },
+    "macs2_narrowpeak":
+    {
+    	"jobname":"macs2narrow",
+        "time": "04:00:00"
+    },
+    "bamtobed":
+    {
+    	"jobname":"bamtobed",
+    	"mem": "8g",
+        "time": "01:00:00"
+    },
+    "sicer":
+    {
+    	"jobname":"sicer",
+    	"mem": "30g",
+        "time": "04:00:00"
+    },
+     "bdgcmp":
+    {
+    	"jobname":"bdgcmp",
+    	"mem": "20g",
+        "time": "02:00:00"
+    },
+    "bdgtobw":
+    {
+    	"jobname":"sortbdg_bw",
+    	"mem": "12g",
+        "time": "02:00:00"
+    },
+    "idr_pr":
+    {
+    	"jobname":"idr_make_pr",
+    	"mem": "90g"
+    }
+   
+}

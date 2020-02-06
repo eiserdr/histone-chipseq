@@ -1,0 +1,20 @@
+---
+control: MP2_In_merged
+control_idr:
+  - MP2_In_1
+  - MP2_In_2
+samples_broad: 
+  - MP2_27Ac_1
+  - MP2_27Ac_2
+  - MP2_27Ac_merged
+  - MP2_4me1_1
+  - MP2_4me1_2
+  - MP2_4me1_merged
+samples_narrow: 
+  - MP2_4me3_1
+  - MP2_4me3_2
+  - MP2_4me3_merged
+samples_sicer: 
+  - MP2_27me3_1
+  - MP2_27me3_2
+  - MP2_27me3_merged
