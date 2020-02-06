@@ -104,7 +104,7 @@ rule bdgTobw:
 rule idr_pr:
 	input: "BamFiles/{sample}.sorted.bam"
 	output: "IDR/BamFiles/{sample}_pr1.bam", "IDR/BamFiles/{sample}_pr2.bam"
-	shadow: "shallow"
+	shadow: "shallow"	#shallow will create a temporary directory. It will then delete files I don't need. It's nice here because I create a lot of intermediate files.
 	shell:
 		"""
 		nlines=$(samtools view {input} | wc -l)
@@ -114,7 +114,7 @@ rule idr_pr:
 		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_00 | samtools view -b - > IDR/BamFiles/{wildcards.sample}_pr1.bam
 		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_01 | samtools view -b - > IDR/BamFiles/{wildcards.sample}_pr2.bam
 		"""
-		#rm header_{wildcards.sample}.sam pr_{wildcards.sample}_00 pr_{wildcards.sample}_01
+		
 		
 		
 		
