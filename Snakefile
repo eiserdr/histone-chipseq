@@ -30,7 +30,7 @@ rule all:
 	input: ALL_BAM + ALL_PEAKS + ALL_SIGNAL + ALL_IDR
 
 rule merge:
-	input: "BamFiles/{sample}_1.sorted.bam", "BamFiles/{sample}_2.sorted.bam
+	input: "BamFiles/{sample}_1.sorted.bam", "BamFiles/{sample}_2.sorted.bam"
 	output: "BamFiles/{sample}_merged.sorted.bam"
 	shell:
 		"samtools merge {output} {input}"
