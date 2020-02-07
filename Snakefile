@@ -29,6 +29,12 @@ ALL_IDR = expand("IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam", sample = ALL_CASE
 rule all:
 	input: ALL_BAM + ALL_PEAKS + ALL_SIGNAL + ALL_IDR
 
+rule merge:
+	input: "BamFiles/{sample}_1.sorted.bam", "BamFiles/{sample}_2.sorted.bam
+	output: "BamFiles/{sample}_merged.sorted.bam"
+	shell:
+		"samtools merge {output} {input}"
+
 rule macs2_broadpeak:
 	input:
 		case="BamFiles/{sample}.sorted.bam",							#it knows that to only run it on samples specified by SAMPLES_BROAD
