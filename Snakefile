@@ -6,12 +6,12 @@ import sys
 configfile: "config.yaml"
 localrules: all
 
-CONTROL = config["control"].split()		#there is only one control, i make it into a list so it can concatonate with the other lists
+CONTROL = config["control"]		#there is only one control, note that the CONTROL variable is not a list.
 SAMPLES_BROAD = config["samples_broad"]
 SAMPLES_NARROW = config["samples_narrow"]
 SAMPLES_SICER = config["samples_sicer"]
 ALL_CASES = SAMPLES_BROAD + SAMPLES_NARROW + SAMPLES_SICER
-ALL_SAMPLES = CONTROL + ALL_CASES
+ALL_SAMPLES = CONTROL.split() + ALL_CASES
 
 ALL_BAM = expand("BamFiles/{sample}_{rep}.sorted.bam", sample = ALL_SAMPLES, rep = ["1","2","merged"])
 
@@ -20,11 +20,10 @@ ALL_PEAKS = expand("Callpeak/Broadpeak/{sample}_{rep}_peaks.broadPeak", sample =
 expand("Callpeak/Narrowpeak/{sample}_{rep}_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
 expand("Callpeak/SICER/{sample}_{rep}-W500-G1500-FDR0.01-island.bed", sample = SAMPLES_SICER, rep = ["1","2","merged"])
 
-ALL_SIGNAL = expand("Callpeak/Broadpeak/{sample}_{rep}_{signal}.bw", sample = SAMPLES_BROAD, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
-expand("Callpeak/Narrowpeak/{sample}_{rep}_{signal}.bw", sample = SAMPLES_NARROW, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
+ALL_SIGNAL = expand("Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_BROAD + SAMPLES_NARROW, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
 expand("Callpeak/SICER/{sample}_{rep}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", sample = SAMPLES_SICER, rep = ["1","2","merged"])
 
-ALL_IDR = expand("IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam", sample = ALL_CASES, rep = ["1","2","merged"], pr_rep =["1","2"]) 
+ALL_IDR = expand("IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam", sample = SAMPLES_BROAD + SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep =["1","2"]) 
 
 rule all:
 	input: ALL_BAM + ALL_PEAKS + ALL_SIGNAL + ALL_IDR
@@ -38,7 +37,7 @@ rule merge:
 rule macs2_broadpeak:
 	input:
 		case="BamFiles/{sample}.sorted.bam",							#it knows that to only run it on samples specified by SAMPLES_BROAD
-		ctrl = "BamFiles/" + config["control"] + "_merged.sorted.bam"			#I only use the merged input here
+		ctrl = "BamFiles/" + CONTROL + "_merged.sorted.bam"			#I only use the merged input here
 	output: 
 		"Callpeak/Broadpeak/{sample}_peaks.broadPeak", temp("Callpeak/Broadpeak/{sample}_treat_pileup.bdg"), temp("Callpeak/Broadpeak/{sample}_control_lambda.bdg"), temp("Callpeak/Broadpeak/{sample}_peaks.xls"), temp("Callpeak/Broadpeak/{sample}_peaks.gappedPeak")
 	shell:
@@ -48,7 +47,7 @@ rule macs2_broadpeak:
 rule macs2_narrowpeak:
 	input:
 		case="BamFiles/{sample}.sorted.bam",
-		ctrl = "BamFiles/" + config["control"] + "_merged.sorted.bam"
+		ctrl = "BamFiles/" + CONTROL + "_merged.sorted.bam"
 	output: 
 		"Callpeak/Narrowpeak/{sample}_peaks.narrowPeak", temp("Callpeak/Narrowpeak/{sample}_treat_pileup.bdg"), temp("Callpeak/Narrowpeak/{sample}_control_lambda.bdg"), temp("Callpeak/Narrowpeak/{sample}_peaks.xls"), temp("Callpeak/Narrowpeak/{sample}_summits.bed")
 	shell:
@@ -68,7 +67,7 @@ rule bamtobed:
 rule sicer:
 	input:
 		case="BedFiles/{sample}.bed",
-		ctrl= "BedFiles/" + config["control"] + "_merged.bed" #Only use merged input file
+		ctrl= "BedFiles/" + CONTROL + "_merged.bed" #Only use merged input file
 	output: 
 		"{sample}-W500-G1500-FDR0.01-island.bed", "{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", temp("{sample}-W500-G1500-FDR0.01-islandfiltered.bed"), temp("{sample}-W500-G1500.scoreisland"), temp("{sample}-W500-normalized.wig"), temp("{sample}-W500-G1500-islands-summary")
 	threads: 16
@@ -97,17 +96,27 @@ rule bdgcmp:
 		"macs2 bdgcmp -t {input.case} -c {input.ctrl} -m FE ppois --o-prefix Callpeak/{wildcards.dir}/{wildcards.sample}"
 
 #module ucsc
-rule bdgTobw:
-	input: "Callpeak/{dir}/{sample}.bdg"
-	output: "Callpeak/{dir}/{sample}.bw"
+rule bdgTobw_narrow:
+	input: "Callpeak/Narrowpeak/{sample}.bdg"
+	output: "Signal/{sample}.bw"
 	threads: 12
 	shell:
 		"""
-		sort -k1,1 -k2,2n {input} > {input}.sorted;
+		sort -k1,1 -k2,2n {input} > {input}.sorted
 		bedGraphToBigWig {input}.sorted /fdb/genomebrowser/chrom.sizes/hg19/chrom.sizes {output}
 		rm {input}.sorted
 		"""
-
+rule bdgTobw_broad:
+	input: "Callpeak/Broadpeak/{sample}.bdg"
+	output: "Signal/{sample}.bw"
+	threads: 12
+	shell:
+		"""
+		sort -k1,1 -k2,2n {input} > {input}.sorted
+		bedGraphToBigWig {input}.sorted /fdb/genomebrowser/chrom.sizes/hg19/chrom.sizes {output}
+		rm {input}.sorted
+		"""
+		
 rule idr_pr:
 	input: "BamFiles/{sample}.sorted.bam"
 	output: "IDR/BamFiles/{sample}_pr1.bam", "IDR/BamFiles/{sample}_pr2.bam"

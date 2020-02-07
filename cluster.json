@@ -7,9 +7,15 @@
         "partition":"norm",
         "out"  : "./log/{rule}_{wildcards.sample}-%j.out"
     },
-   
+    "merge":
+    {
+    	"jobname":"merge_bam",
+        "time": "02:00:00",
+        "mem": "2g"
+    },
     "macs2_broadpeak":
     {
+    	"mem":"8g"
     	"jobname":"macs2broad",
         "time": "04:00:00"
     },
@@ -45,7 +51,7 @@
     "idr_pr":
     {
     	"jobname":"idr_make_pr",
-    	"mem": "90g"
+    	"mem": "80g"
     }
    
 }
