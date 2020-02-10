@@ -20,11 +20,17 @@ ALL_PEAKS = expand("Callpeak/Broadpeak/{sample}_{rep}_peaks.broadPeak", sample =
 expand("Callpeak/Narrowpeak/{sample}_{rep}_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
 expand("Callpeak/SICER/{sample}_{rep}-W500-G1500-FDR0.01-island.bed", sample = SAMPLES_SICER, rep = ["1","2","merged"])
 
-ALL_SIGNAL = expand("Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_BROAD + SAMPLES_NARROW, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
+ALL_SIGNAL = expand("Callpeak/Broadpeak/{sample}_{rep}_{signal}.bw", sample = SAMPLES_BROAD, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
+expand("Callpeak/Narrowpeak/{sample}_{rep}_{signal}.bw", sample = SAMPLES_NARROW, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
 expand("Callpeak/SICER/{sample}_{rep}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", sample = SAMPLES_SICER, rep = ["1","2","merged"])
 
-ALL_IDR = expand("IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam", sample = SAMPLES_BROAD + SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep =["1","2"]) 
+ALL_IDR = expand("IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam", sample = SAMPLES_BROAD + SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep =["1","2"]) + \
+expand("IDR/Callpeak/{sample}_{rep}_peaks.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
+expand("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_peaks.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"], pr_rep = ["1","2"]) + \
+expand("IDR/Callpeak/{sample}_{rep}_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
+expand("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep = ["1","2"])
 
+print(ALL_IDR)
 rule all:
 	input: ALL_BAM + ALL_PEAKS + ALL_SIGNAL + ALL_IDR
 
@@ -96,9 +102,10 @@ rule bdgcmp:
 		"macs2 bdgcmp -t {input.case} -c {input.ctrl} -m FE ppois --o-prefix Callpeak/{wildcards.dir}/{wildcards.sample}"
 
 #module ucsc
-rule bdgTobw_narrow:
-	input: "Callpeak/Narrowpeak/{sample}.bdg"
-	output: "Signal/{sample}.bw"
+#couldn't figure out a way to write the bw output to the Signal file.  So I had to make two mv_bw rules
+rule bdgTobw:
+	input: "{dir}/{sample}.bdg"
+	output: "{dir}/{sample}.bw"
 	threads: 12
 	shell:
 		"""
@@ -106,16 +113,8 @@ rule bdgTobw_narrow:
 		bedGraphToBigWig {input}.sorted /fdb/genomebrowser/chrom.sizes/hg19/chrom.sizes {output}
 		rm {input}.sorted
 		"""
-rule bdgTobw_broad:
-	input: "Callpeak/Broadpeak/{sample}.bdg"
-	output: "Signal/{sample}.bw"
-	threads: 12
-	shell:
-		"""
-		sort -k1,1 -k2,2n {input} > {input}.sorted
-		bedGraphToBigWig {input}.sorted /fdb/genomebrowser/chrom.sizes/hg19/chrom.sizes {output}
-		rm {input}.sorted
-		"""
+
+### IDR ###
 		
 rule idr_pr:
 	input: "BamFiles/{sample}.sorted.bam"
@@ -130,8 +129,55 @@ rule idr_pr:
 		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_00 | samtools view -b - > IDR/BamFiles/{wildcards.sample}_pr1.bam
 		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_01 | samtools view -b - > IDR/BamFiles/{wildcards.sample}_pr2.bam
 		"""
-	
+
 		
+rule idr_call_broad_pr:
+	input: 
+		case="IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.sorted.bam",
+		ctrl="IDR/BamFiles/" + CONTROL + "_{rep}.sorted.bam"
+	output: 
+		"IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_peaks.broadPeak", 
+		temp("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_peaks.xls"), 
+		temp("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_peaks.gappedPeak")
+	shell:
+		"""
+		macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_pr{wildcards.pr_rep} --outdir IDR/Callpeak --broad --bw 150 --extsize 150 --nomodel
+		"""
+
+rule idr_call_narrow_pr:
+	input: 
+		case="IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.sorted.bam",
+		ctrl="IDR/BamFiles/" + CONTROL + "_{rep}.sorted.bam"
+	output: 
+		temp("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_peaks.narrowPeak"), #this is temp bc I keep the sorted version
+		temp("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_peaks.xls"), 
+		temp("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_summits.bed")
+	shell:
+		"""
+		macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_pr{wildcards.pr_rep} --outdir IDR/Callpeak --bw 150 --extsize 150 --nomodel
 		
+		"""	
 		
+rule idr_call_broad:
+	input: 
+		case="BamFiles/{sample}_{rep}.sorted.bam",
+		ctrl="BamFiles/" + CONTROL + "_{rep}.sorted.bam"
+	output: 
+		temp("IDR/Callpeak/{sample}_{rep}_peaks.broadPeak"), #temp bc I keep sorted peakfile
+		temp("IDR/Callpeak/{sample}_{rep}_peaks.xls"), 
+		temp("IDR/Callpeak/{sample}_{rep}_peaks.gappedPeak")
+	shell:
+		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep} --outdir IDR/Callpeak --broad --bw 150 --extsize 150 --nomodel"
+
+rule idr_call_narrow:
+	input: 
+		case="BamFiles/{sample}_{rep}.sorted.bam",
+		ctrl="BamFiles/" + CONTROL + "_{rep}.sorted.bam"
+	output: 
+		"IDR/Callpeak/{sample}_{rep}_peaks.narrowPeak", 
+		temp("IDR/Callpeak/{sample}_{rep}_peaks.xls"), 
+		temp("IDR/Callpeak/{sample}_{rep}_summits.bed")
+	shell:
+		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep} --outdir IDR/Callpeak --bw 150 --extsize 150 --nomodel"
 		
+#####To make it less ambiguous, move the pr1/2 to the front of the file name		
