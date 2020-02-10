@@ -13,13 +13,13 @@
         "time": "02:00:00",
         "mem": "2g"
     },
-    "macs2_broadpeak":
+    "macs2_broad":
     {
-    	"mem":"8g"
+    	"mem":"8g",
     	"jobname":"macs2broad",
         "time": "04:00:00"
     },
-    "macs2_narrowpeak":
+    "macs2_narrow":
     {
     	"jobname":"macs2narrow",
         "time": "04:00:00"
@@ -52,6 +52,42 @@
     {
     	"jobname":"idr_make_pr",
     	"mem": "80g"
+    },
+    "macs2_broad_idr":
+    {
+    	"jobname":"idr_call_broad",
+    	"mem": "8g",
+    	"time":"4:00:00"
+    },
+     "macs2_narrow_idr":
+    {
+    	"jobname":"idr_call_narrow",
+    	"mem": "8g",
+    	"time":"4:00:00"
+    },
+     "macs2_broad_pr_idr":
+    {
+    	"jobname":"idr_call_broad_pr",
+    	"mem": "8g",
+    	"time":"4:00:00"
+    },
+     "macs2_narrow_pr_idr":
+    {
+    	"jobname":"idr_call_narrow_pr",
+    	"mem": "8g",
+    	"time":"4:00:00"
+    },
+     "blacklist":
+    {
+    	"jobname":"blacklist",
+    	"mem": "2g",
+    	"time":"1:00:00"
+    },
+    "sort":
+    {
+    	"jobname":"sort",
+    	"mem": "2g",
+    	"time":"1:00:00"
     }
    
 }
