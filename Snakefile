@@ -195,7 +195,7 @@ rule macs2_narrow_pr_idr:
 		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_pr{wildcards.pr_rep}_p0.01 --outdir IDR/Callpeak --bw 150 --extsize 150 --nomodel"	
 
 
-#call idr
+#call idr with threshold of 0.05.
 rule idr_pr:
 	input:
 		pr1= "IDR/Callpeak/{sample}_{rep}_pr1_p0.01_filt_peaks.sorted.{peak}",
@@ -204,7 +204,10 @@ rule idr_pr:
 	output:
 		"IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.{peak}"
 	shell:
-		"idr --samples {input.pr1} {input.pr2} --input-file-type {wildcards.peak} --peak-list {input.peaklist} --output-file {output}"
+		"""
+		idr --samples {input.pr1} {input.pr2} --input-file-type {wildcards.peak} --peak-list {input.peaklist} --output-file {output} --idr-threshold 0.05
+		wc -l {output} >> IDR/peakcount.txt
+		"""
 
 rule idr_rep:
 	input:
@@ -214,7 +217,12 @@ rule idr_rep:
 	output:
 		"IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.{peak}"
 	shell:
-		"idr --samples {input.rep1} {input.rep2} --input-file-type {wildcards.peak} --peak-list {input.peaklist} --output-file {output}"
+		"""
+		idr --samples {input.rep1} {input.rep2} --input-file-type {wildcards.peak} --peak-list {input.peaklist} --output-file {output} --idr-threshold 0.05
+		wc -l {output} >> IDR/peakcount.txt
+		"""
+
+
 
 #Blacklist and sort_peaks both run on the idr peaks.  Their order doesn't matter. But snakemake calls it an ambiguous rule exception because it doesn't know which one to run first. I just tell snakemake to run blacklist first
 ruleorder: blacklist > sort_peaks
