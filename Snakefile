@@ -222,8 +222,6 @@ rule idr_rep:
 		wc -l {output} >> IDR/peakcount.txt
 		"""
 
-
-
 #Blacklist and sort_peaks both run on the idr peaks.  Their order doesn't matter. But snakemake calls it an ambiguous rule exception because it doesn't know which one to run first. I just tell snakemake to run blacklist first
 ruleorder: blacklist > sort_peaks
 
@@ -250,3 +248,5 @@ rule sort_peaks:
 		sort -k8,8nr {input} > {output}
 		rm {input}
 		"""
+
+
