@@ -17,11 +17,11 @@ ALL_BAM = expand("BamFiles/{sample}_{rep}.sorted.bam", sample = ALL_SAMPLES, rep
 
 ALL_PEAKS = expand("Callpeak/Broadpeak/{sample}_{rep}_filt_peaks.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
 expand("Callpeak/Narrowpeak/{sample}_{rep}_filt_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
-expand("Callpeak/SICER/{sample}_{rep}-W500-G1500-FDR0.01-island.bed", sample = SAMPLES_SICER, rep = ["1","2","merged"])
+expand("Callpeak/SICER/{sample}_{rep}_filt_W500-G1500-FDR0.01-island.bed", sample = SAMPLES_SICER, rep = ["1","2","merged"])
 
-ALL_SIGNAL = expand("Callpeak/Broadpeak/{sample}_{rep}_{signal}.bw", sample = SAMPLES_BROAD, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
-expand("Callpeak/Narrowpeak/{sample}_{rep}_{signal}.bw", sample = SAMPLES_NARROW, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
-expand("Callpeak/SICER/{sample}_{rep}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", sample = SAMPLES_SICER, rep = ["1","2","merged"])
+ALL_SIGNAL = expand("Callpeak/Broadpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_BROAD, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
+expand("Callpeak/Narrowpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_NARROW, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
+expand("Callpeak/SICER/Signal/{sample}_{rep}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", sample = SAMPLES_SICER, rep = ["1","2","merged"])
 
 ALL_IDR = expand("IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam", sample = SAMPLES_BROAD + SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep =["1","2"]) + \
 expand("IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
@@ -40,7 +40,7 @@ rule merge:
 
 rule macs2_broad:
 	input:
-		case="BamFiles/{sample}.sorted.bam",							#it knows that to only run it on samples specified by SAMPLES_BROAD
+		case="BamFiles/{sample}.sorted.bam",						#it knows that to only run it on samples specified by SAMPLES_BROAD
 		ctrl = "BamFiles/" + CONTROL + "_merged.sorted.bam"			#I only use the merged input here
 	output: 
 		"Callpeak/Broadpeak/{sample}_peaks.broadPeak", 
@@ -94,12 +94,15 @@ rule mv_sicer:
 	input:
 		"{sample}-W500-G1500-FDR0.01-island.bed", "{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
 	output:
-		"Callpeak/SICER/{sample}-W500-G1500-FDR0.01-island.bed", "Callpeak/SICER/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
+		"Callpeak/SICER/{sample}_W500-G1500-FDR0.01-island.bed", "Callpeak/SICER/Signal/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
 	shell:
 		"""
 		mv {input} ./Callpeak/SICER
+		mv Callpeak/SICER/{wildcards.sample}-W500-G1500-FDR0.01-island.bed Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #change name to include an underscore.  This is important for blacklist
+		mv Callpeak/SICER/{wildcards.sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig Callpeak/SICER/Signal/{wildcards.sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig
 		"""
 		#maybe remove the other files like "rm    
+		
 ###Signal Files ####
 #sicer already makes signal files, but I need to for macs2
 
@@ -116,7 +119,7 @@ rule bdgcmp:
 #couldn't figure out a way to write the bw output to the Signal file.  So I had to make two mv_bw rules
 rule bdgTobw:
 	input: "{dir}/{sample}.bdg"
-	output: "{dir}/{sample}.bw"
+	output: "{dir}/Signal/{sample}.bw"
 	threads: 12
 	shell:
 		"""
@@ -197,7 +200,7 @@ rule blacklist:
 	shell:
 		"""
 		bedtools intersect -v -a {input} -b Files/wgEncodeDacMapabilityConsensusExcludable.bed > {output}
-		rm {input}
+		rm {input}	#I don't like deleting files like this. But I'm not sure how else to do that.
 		"""	
 
 #have to sort peaks by significance after blacklisting. I specify "filt" so that the blacklist occurs before sorting.  I don't think the order matters too much, but snakemake needs it.
