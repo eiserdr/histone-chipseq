@@ -27,7 +27,11 @@ ALL_IDR = expand("IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam", sample = SAMPLES_
 expand("IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
 expand("IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
 expand("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_filt_peaks.sorted.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"], pr_rep = ["1","2"]) + \
-expand("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_filt_peaks.sorted.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep = ["1","2"])
+expand("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_filt_peaks.sorted.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep = ["1","2"]) + \
+expand("IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
+expand("IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
+expand("IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.narrowPeak", sample = SAMPLES_NARROW) + \
+expand("IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.broadPeak", sample = SAMPLES_BROAD)
 
 rule all:
 	input: ALL_BAM + ALL_PEAKS + ALL_SIGNAL + ALL_IDR
@@ -99,7 +103,9 @@ rule mv_sicer:
 		"""
 		mv {input} ./Callpeak/SICER
 		mv Callpeak/SICER/{wildcards.sample}-W500-G1500-FDR0.01-island.bed Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #change name to include an underscore.  This is important for blacklist
+		cd Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #sicer leaves a trailing tab character at the end of every line. For blacklist to work, it has to be removed
 		mv Callpeak/SICER/{wildcards.sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig Callpeak/SICER/Signal/{wildcards.sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig
+		
 		"""
 		#maybe remove the other files like "rm    
 		
@@ -187,6 +193,28 @@ rule macs2_narrow_pr_idr:
 		temp("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_summits.bed")
 	shell:
 		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_pr{wildcards.pr_rep}_p0.01 --outdir IDR/Callpeak --bw 150 --extsize 150 --nomodel"	
+
+
+#call idr
+rule idr_pr:
+	input:
+		pr1= "IDR/Callpeak/{sample}_{rep}_pr1_p0.01_filt_peaks.sorted.{peak}",
+		pr2= "IDR/Callpeak/{sample}_{rep}_pr2_p0.01_filt_peaks.sorted.{peak}",
+		peaklist= "IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.{peak}"
+	output:
+		"IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.{peak}"
+	shell:
+		"idr --samples {input.pr1} {input.pr2} --input-file-type {wildcards.peak} --peak-list {input.peaklist} --output-file {output}"
+
+rule idr_rep:
+	input:
+		rep1= "IDR/Callpeak/{sample}_1_p0.01_filt_peaks.sorted.{peak}",
+		rep2= "IDR/Callpeak/{sample}_2_p0.01_filt_peaks.sorted.{peak}",
+		peaklist= "IDR/Callpeak/{sample}_merged_p0.01_filt_peaks.sorted.{peak}"
+	output:
+		"IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.{peak}"
+	shell:
+		"idr --samples {input.rep1} {input.rep2} --input-file-type {wildcards.peak} --peak-list {input.peaklist} --output-file {output}"
 
 #Blacklist and sort_peaks both run on the idr peaks.  Their order doesn't matter. But snakemake calls it an ambiguous rule exception because it doesn't know which one to run first. I just tell snakemake to run blacklist first
 ruleorder: blacklist > sort_peaks
