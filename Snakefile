@@ -33,8 +33,11 @@ expand("IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.narrowPeak", sample = SA
 expand("IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.narrowPeak", sample = SAMPLES_NARROW) + \
 expand("IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.broadPeak", sample = SAMPLES_BROAD)
 
+ALL_PHANTOM = expand("BamFiles/{sample}_{rep}.tagAlign.gz", sample = ALL_CASES, rep = ["1","2","merged"]) + \
+expand("PhantomPeaks/{sample}_{rep}_NSC_RSC.txt", sample = ALL_CASES, rep = ["1","2","merged"]) + \
+expand("PhantomPeaks/{sample}_{rep}_xcorr.pdf", sample = ALL_CASES, rep = ["1","2","merged"])
 rule all:
-	input: ALL_BAM + ALL_PEAKS + ALL_SIGNAL + ALL_IDR
+	input: ALL_BAM + ALL_PEAKS + ALL_SIGNAL + ALL_IDR + ALL_PHANTOM
 
 rule merge:
 	input: "BamFiles/{sample}_1.sorted.bam", "BamFiles/{sample}_2.sorted.bam"
@@ -248,5 +251,35 @@ rule sort_peaks:
 		sort -k8,8nr {input} > {output}
 		rm {input}
 		"""
+### Phantom Peaks ###
+rule make_tagalign:
+	input:
+		"BamFiles/{sample}.sorted.bam"
+	output:
+		"BamFiles/{sample}.tagAlign.gz" #make this temp
+	threads: 4
+	shell:
+		""" #any braces not used for variables must be escaped with another brace.
+		samtools view -F 0x0204 -o - {input} | awk 'BEGIN{{OFS="\t"}}{{if (and($2,16) > 0) {{print $3,($4-1),($4-1+length($10)),"N","1000","-"}} else {{print $3,($4-1),($4-1+length($10)),"N","1000","+"}} }}' | gzip -c > {output}
+		"""
+rule phantompeak:
+	input:
+		"BamFiles/{sample}.tagAlign.gz"
+	output:
+		text="PhantomPeaks/{sample}_xcorr.txt",
+		plot="PhantomPeaks/{sample}_xcorr.pdf"
+	threads: 12
+	shell:
+		"Rscript Files/run_spp.R  -c={input} -out={output.text} -p=$SLURM_CPUS_PER_TASK -savp={output.plot} -rf" #one file
+rule calc_NSC_RSC:
+	input:
+		"PhantomPeaks/{sample}_xcorr.txt"
+	output:
+		"PhantomPeaks/{sample}_NSC_RSC.txt"
+	shell:
+		"python Files/nscRsc.py {input} {output}"
 
+### ChromHMM ###
+#apply old model to new stuff.
+#also ask if chromhmm is wanted
 

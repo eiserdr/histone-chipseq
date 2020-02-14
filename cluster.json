@@ -88,6 +88,18 @@
     	"jobname":"sort",
     	"mem": "2g",
     	"time":"1:00:00"
+    },
+    "tagAlign":
+    {
+    	"jobname":"tagAlign",
+    	"mem": "2g",
+    	"time":"1:00:00"
+    },
+     "phantompeak":
+    {
+    	"jobname":"phantompeak",
+    	"mem": "32g",
+    	"time":"3:00:00"
     }
    
 }
