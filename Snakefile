@@ -259,7 +259,7 @@ rule blacklist:
 		"{Dir}/{sample}_filt_{peaks}"
 	shell:
 		"""
-		bedtools intersect -v -a {input} -b Files/wgEncodeDacMapabilityConsensusExcludable.bed > {output}
+		bedtools intersect -v -a {input} -b scripts/wgEncodeDacMapabilityConsensusExcludable.bed > {output}
 		rm {input}	#I don't like deleting files like this. But I'm not sure how else to do that.
 		"""	
 
@@ -297,7 +297,7 @@ rule phantompeak:
 	log:
 		"log/phantompeak_xcorr.{sample}.out"
 	shell:
-		"Rscript Files/run_spp.R  -c={input} -out={output.text} -p=$SLURM_CPUS_PER_TASK -savp={output.plot} -rf" #one file
+		"Rscript scripts/run_spp.R  -c={input} -out={output.text} -p=$SLURM_CPUS_PER_TASK -savp={output.plot} -rf" #one file
 		
 rule calc_NSC_RSC:
 	input:
@@ -307,5 +307,5 @@ rule calc_NSC_RSC:
 	log:
 		"log/phantompeak_nsc_rsc.{sample}.out"
 	shell:
-		"python Files/nscRsc.py {input} {output}"
+		"python scripts/nscRsc.py {input} {output}"
 
