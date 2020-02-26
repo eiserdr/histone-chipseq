@@ -5,95 +5,96 @@
 		"time": "02:00:00",
 		"partition": "norm"
 	},
-	"merge": {
-		"jobname": "merge_bam",
+	"merge_bam": {
 		"time": "02:00:00",
-		"mem": "2g"
+		"mem": "2g",
+		"out": "log/merge_bam.{wildcards.sample}.out"
 	},
 	"macs2_broad": {
 		"mem": "8g",
-		"jobname": "macs2broad",
-		"time": "04:00:00"
+		"time": "04:00:00",
+		"out": "log/macs2_broad.{wildcards.sample}.out"
 	},
 	"macs2_narrow": {
-		"jobname": "macs2narrow",
-		"time": "04:00:00"
+		"time": "04:00:00",
+		"out": "log/macs2_narrow.{wildcards.sample}.out"
 	},
 	"bamtobed": {
-		"jobname": "bamtobed",
 		"mem": "8g",
-		"time": "01:00:00"
+		"time": "01:00:00",
+		"out": "log/bamtobed.{wildcards.sample}.out"
 	},
 	"sicer": {
-		"jobname": "sicer",
 		"mem": "30g",
-		"time": "04:00:00"
+		"time": "04:00:00",
+		"out": "log/sicer.{wildcards.sample}.out"
 	},
 	"bdgcmp": {
-		"jobname": "bdgcmp",
 		"mem": "20g",
-		"time": "02:00:00"
+		"time": "02:00:00",
+		"out": "log/bdgcmp.{wildcards.sample}.out"
 	},
 	"bdgtobw": {
-		"jobname": "sortbdg_bw",
 		"mem": "12g",
-		"time": "02:00:00"
+		"time": "02:00:00",
+		"out": "log/bdgtobw.{wildcards.sample}.out"
 	},
-	"make_pseudorep_idr": {
-		"jobname": "make_pseudorep_idr",
-		"mem": "80g"
+	"idr_make_pseudorep": {
+		"mem": "80g",
+		"out": "log/idr_make_pseudorep.{wildcards.sample}.out"
 	},
-	"idr_pr": {
-		"jobname": "idr_pr",
-		"mem": "80g"
-	},
-	"idr_rep": {
-		"jobname": "idr_rep"
-	},
-	"macs2_broad_idr": {
-		"jobname": "idr_call_broad",
+	"idr_macs2_broad": {
 		"mem": "8g",
-		"time": "4:00:00"
+		"time": "4:00:00",
+		"out": "log/idr_macs2_broad.{wildcards.sample}.out"
 	},
-	"macs2_narrow_idr": {
-		"jobname": "idr_call_narrow",
+	"idr_macs2_narrow": {
 		"mem": "8g",
-		"time": "4:00:00"
+		"time": "4:00:00",
+		"out": "log/idr_macs2_narrow.{wildcards.sample}.out"
 	},
-	"macs2_broad_pr_idr": {
-		"jobname": "idr_call_broad_pr",
+	"idr_macs2_broad_pr": {
 		"mem": "8g",
-		"time": "4:00:00"
+		"time": "4:00:00",
+		"out": "log/idr_macs2_broad_pr.{wildcards.sample}.out"
 	},
-	"macs2_narrow_pr_idr": {
+	"idr_macs2_narrow_pr": {
 		"jobname": "idr_call_narrow_pr",
 		"mem": "8g",
-		"time": "4:00:00"
+		"time": "4:00:00",
+		"out": "log/idr_macs2_narrow_pr.{wildcards.sample}.out"
+	},
+		"idr_pr": {
+		"mem": "80g",
+		"out": "log/idr_pr.{wildcards.sample}.out"
+	},
+	"idr_rep": {
+		"out": "log/idr_rep.{wildcards.sample}.out"
 	},
 	"blacklist": {
-		"jobname": "blacklist",
 		"mem": "2g",
-		"time": "1:00:00"
+		"time": "1:00:00",
+		"out": "log/blacklist.{wildcards.sample}.out"
 	},
 	"sort_peaks": {
-		"jobname": "sort",
 		"mem": "2g",
-		"time": "1:00:00"
+		"time": "1:00:00",
+		"out": "log/sort_peaks.{wildcards.sample}.out"
 	},
-	"make_tagAlign": {
-		"jobname": "make_tagAlign",
+	"phantompeak_make_tagAlign": {
 		"mem": "2g",
-		"time": "1:00:00"
+		"time": "1:00:00",
+		"out": "log/phantompeak_make_tagalign.{wildcards.sample}.out"
 	},
-	"phantompeak": {
-		"jobname": "phantompeak",
+	"phantompeak_xcorr": {
 		"mem": "32g",
-		"time": "3:00:00"
+		"time": "3:00:00",
+		"out": "log/phantompeak_xcorr.{wildcards.sample}.out"
 	},
-	"calc_NSC_RSC": {
-		"jobname": "calc_NSC_RSC",
+	"phantompeak_NSC_RSC": {
 		"mem": "1g",
-		"time": "0:05:00"
+		"time": "0:05:00",
+		"out": "log/calc_nsc_rsc.{wildcards.sample}.out"
 	}
 
 }

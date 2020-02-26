@@ -43,7 +43,7 @@ ALL_PHANTOM = expand("PhantomPeaks/{sample}_{rep}_NSC_RSC.txt", sample = ALL_CAS
 rule all:
 	input: ALL_BAM + ALL_PEAKS + ALL_SIGNAL + ALL_IDR + ALL_PHANTOM
 
-rule merge:
+rule merge_bam:
 	input: "BamFiles/{sample}_1.sorted.bam", "BamFiles/{sample}_2.sorted.bam"
 	output: "BamFiles/{sample}_merged.sorted.bam"
 	shell:
@@ -153,7 +153,7 @@ rule bdgTobw:
 
 ### IDR ###
 		
-rule make_pseudorep_idr:
+rule idr_make_pseudorep:
 	input: "BamFiles/{sample}.sorted.bam"
 	output: "IDR/BamFiles/{sample}_pr1.bam", "IDR/BamFiles/{sample}_pr2.bam"
 	shadow: "shallow"	#shallow will create a temporary directory. It will then delete files I don't need. It's nice here because I create a lot of intermediate files.
@@ -170,7 +170,7 @@ rule make_pseudorep_idr:
 		"""
 
 ##call peaks at low threshold of p0.01		
-rule macs2_broad_idr:
+rule idr_macs2_broad:
 	input: 
 		case="BamFiles/{sample}_{rep}.sorted.bam",
 		ctrl="BamFiles/" + CONTROL + "_{rep}.sorted.bam"
@@ -183,7 +183,7 @@ rule macs2_broad_idr:
 	shell:
 		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_p0.01 --outdir IDR/Callpeak --broad --bw 150 --extsize 150 --nomodel"
 
-rule macs2_narrow_idr:
+rule idr_macs2_narrow:
 	input: 
 		case="BamFiles/{sample}_{rep}.sorted.bam",
 		ctrl="BamFiles/" + CONTROL + "_{rep}.sorted.bam"
@@ -196,7 +196,7 @@ rule macs2_narrow_idr:
 	shell:
 		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_p0.01 --outdir IDR/Callpeak --bw 150 --extsize 150 --nomodel"
 		
-rule macs2_broad_pr_idr:
+rule idr_macs2_broad_pr:
 	input: 
 		case="IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam",
 		ctrl="BamFiles/" + CONTROL + "_{rep}.sorted.bam"
@@ -208,7 +208,7 @@ rule macs2_broad_pr_idr:
 		"log/idr_macs2_broad_pr.{sample}_{rep}_pr{pr_rep}.out"
 	shell:
 		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_pr{wildcards.pr_rep}_p0.01 --outdir IDR/Callpeak --broad --bw 150 --extsize 150 --nomodel"		
-rule macs2_narrow_pr_idr:
+rule idr_macs2_narrow_pr:
 	input: 
 		case="IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam",
 		ctrl="BamFiles/" + CONTROL + "_{rep}.sorted.bam"
@@ -276,19 +276,19 @@ rule sort_peaks:
 		rm {input}
 		"""
 ### Phantom Peaks ###
-rule make_tagalign:
+rule phantompeak_make_tagalign:
 	input:
 		"BamFiles/{sample}.sorted.bam"
 	output:
 		"BamFiles/{sample}.tagAlign.gz" #make this temp
 	threads: 4
 	log:
-		"log/phantompeak_tagAlign.{sample}.out"
+		"snakemakelog/phantompeak_tagAlign.{sample}.out"
 	shell:
 		""" #any braces not used for variables must be escaped with another brace.
 		samtools view -F 0x0204 -o - {input} | awk 'BEGIN{{OFS="\t"}}{{if (and($2,16) > 0) {{print $3,($4-1),($4-1+length($10)),"N","1000","-"}} else {{print $3,($4-1),($4-1+length($10)),"N","1000","+"}} }}' | gzip -c > {output}
 		"""
-rule phantompeak:
+rule phantompeak_xcorr:
 	input:
 		"BamFiles/{sample}.tagAlign.gz"
 	output:
@@ -296,17 +296,17 @@ rule phantompeak:
 		plot="PhantomPeaks/{sample}_xcorr.pdf"
 	threads: 12
 	log:
-		"log/phantompeak_xcorr.{sample}.out"
+		"snakemakelog/phantompeak_xcorr.{sample}.out"
 	shell:
 		"Rscript scripts/run_spp.R  -c={input} -out={output.text} -p=$SLURM_CPUS_PER_TASK -savp={output.plot} -rf" #one file
 		
-rule calc_NSC_RSC:
+rule phantompeak_NSC_RSC:
 	input:
 		"PhantomPeaks/{sample}_xcorr.txt"
 	output:
 		"PhantomPeaks/{sample}_NSC_RSC.txt"
 	log:
-		"log/phantompeak_nsc_rsc.{sample}.out"
+		"snakemakelog/phantompeak_nsc_rsc.{sample}.out"
 	shell:
 		"python scripts/nscRsc.py {input} {output}"
 
