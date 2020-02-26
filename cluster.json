@@ -1,121 +1,107 @@
 {
-    "__default__":
-    {
-        "jobname": "default",
-        "mem": "12g",
-        "time": "02:00:00",
-    	"out":"{log}",
-        "partition":"norm"
-    },
-    "merge":
-    {
-    	"jobname":"merge_bam",
-        "time": "02:00:00",
-        "mem": "2g"
-    },
-    "macs2_broad":
-    {
-    	"mem":"8g",
-    	"jobname":"macs2broad",
-        "time": "04:00:00"
-    },
-    "macs2_narrow":
-    {
-    	"jobname":"macs2narrow",
-        "time": "04:00:00"
-    },
-    "bamtobed":
-    {
-    	"jobname":"bamtobed",
-    	"mem": "8g",
-        "time": "01:00:00"
-    },
-    "sicer":
-    {
-    	"jobname":"sicer",
-    	"mem": "30g",
-        "time": "04:00:00"
-    },
-     "bdgcmp":
-    {
-    	"jobname":"bdgcmp",
-    	"mem": "20g",
-        "time": "02:00:00",
-        "out": "log/macs2_bdgcmp.{wildcards.sample}.out"
-    },
-    "bdgtobw":
-    {
-    	"jobname":"sortbdg_bw",
-    	"mem": "12g",
-        "time": "02:00:00",
+	"__default__": {
+		"jobname": "default",
+		"mem": "12g",
+		"time": "02:00:00",
+		"out": "{log}",
+		"partition": "norm"
+	},
+	"merge": {
+		"jobname": "merge_bam",
+		"time": "02:00:00",
+		"mem": "2g"
+	},
+	"macs2_broad": {
+		"mem": "8g",
+		"jobname": "macs2broad",
+		"time": "04:00:00"
+	},
+	"macs2_narrow": {
+		"jobname": "macs2narrow",
+		"time": "04:00:00"
+	},
+	"bamtobed": {
+		"jobname": "bamtobed",
+		"mem": "8g",
+		"time": "01:00:00"
+	},
+	"sicer": {
+		"jobname": "sicer",
+		"mem": "30g",
+		"time": "04:00:00"
+	},
+	"bdgcmp": {
+		"jobname": "bdgcmp",
+		"mem": "20g",
+		"time": "02:00:00",
+		"out": "log/macs2_bdgcmp.{wildcards.sample}.out"
+	},
+	"bdgtobw": {
+		"jobname": "sortbdg_bw",
+		"mem": "12g",
+		"time": "02:00:00",
 		"out": "log/macs2_bdgTobw.{wildcards.sample}.out"
-    },
-    "idr_pr":
-    {
-    	"jobname":"idr_pr",
-    	"mem": "80g",
-    	"out": "log/idr_pr.{wildcards.sample}_{wildcards.rep}.out"
-    },
-    "idr_rep":
-    {
-    	"jobname":"idr_rep",
-    	"out":"log/idr_rep.{wildcards.sample}.out"
-    }
-    "macs2_broad_idr":
-    {
-    	"jobname":"idr_call_broad",
-    	"mem": "8g",
-    	"time":"4:00:00"
-    },
-     "macs2_narrow_idr":
-    {
-    	"jobname":"idr_call_narrow",
-    	"mem": "8g",
-    	"time":"4:00:00"
-    },
-     "macs2_broad_pr_idr":
-    {
-    	"jobname":"idr_call_broad_pr",
-    	"mem": "8g",
-    	"time":"4:00:00"
-    },
-     "macs2_narrow_pr_idr":
-    {
-    	"jobname":"idr_call_narrow_pr",
-    	"mem": "8g",
-    	"time":"4:00:00"
-    },
-     "blacklist":
-    {
-    	"jobname":"blacklist",
-    	"mem": "2g",
-    	"time":"1:00:00",
-    	"out":"log/blacklist.{wildcards.sample}.out"
-    },
-    "sort_peaks":
-    {
-    	"jobname":"sort",
-    	"mem": "2g",
-    	"time":"1:00:00"
-    	"out":"log/sort_peaks.{wildcards.sample}.out"
-    },
-    "make_tagAlign":
-    {
-    	"jobname":"make_tagAlign",
-    	"mem": "2g",
-    	"time":"1:00:00"
-    },
-     "phantompeak":
-    {
-    	"jobname":"phantompeak",
-    	"mem": "32g",
-    	"time":"3:00:00"
-    },
-     "calc_NSC_RSC":
-    {
-    	"jobname":"calc_NSC_RSC",
-    	"mem": "1g",
-    	"time":"0:05:00"
-    }
-   
+	},
+	"make_pseudorep_idr": {
+		"jobname": "make_pseudorep_idr",
+		"mem": "80g",
+		"out": "log/idr_pr.{wildcards.sample}_{wildcards.rep}.out"
+	},
+	"idr_pr": {
+		"jobname": "idr_pr",
+		"mem": "80g",
+		"out": "log/idr_pr.{wildcards.sample}_{wildcards.rep}.out"
+	},
+	"idr_rep": {
+		"jobname": "idr_rep",
+		"out": "log/idr_rep.{wildcards.sample}.out"
+	},
+	"macs2_broad_idr": {
+		"jobname": "idr_call_broad",
+		"mem": "8g",
+		"time": "4:00:00"
+	},
+	"macs2_narrow_idr": {
+		"jobname": "idr_call_narrow",
+		"mem": "8g",
+		"time": "4:00:00"
+	},
+	"macs2_broad_pr_idr": {
+		"jobname": "idr_call_broad_pr",
+		"mem": "8g",
+		"time": "4:00:00"
+	},
+	"macs2_narrow_pr_idr": {
+		"jobname": "idr_call_narrow_pr",
+		"mem": "8g",
+		"time": "4:00:00"
+	},
+	"blacklist": {
+		"jobname": "blacklist",
+		"mem": "2g",
+		"time": "1:00:00",
+		"out": "log/blacklist.{wildcards.sample}.out"
+	},
+	"sort_peaks": {
+		"jobname": "sort",
+		"mem": "2g",
+		"time": "1:00:00",
+		"out": "log/sort_peaks.{wildcards.sample}.out"
+	},
+	"make_tagAlign": {
+		"jobname": "make_tagAlign",
+		"mem": "2g",
+		"time": "1:00:00"
+	},
+	"phantompeak": {
+		"jobname": "phantompeak",
+		"mem": "32g",
+		"time": "3:00:00"
+	},
+	"calc_NSC_RSC": {
+		"jobname": "calc_NSC_RSC",
+		"mem": "1g",
+		"time": "0:05:00"
+	}
+
 }
