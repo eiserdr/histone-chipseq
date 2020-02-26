@@ -111,17 +111,18 @@ rule sicer:
 		"sicer -t {input.case} -c {input.ctrl} -s hg19 -rt 1 -w 500 -f 150 -egf .8 -g 1500 -fdr 0.01 -cpu $(($SLURM_CPUS_PER_TASK/2)) --significant_reads"
 rule mv_sicer:
 	input:
-		"{sample}-W500-G1500-FDR0.01-island.bed", "{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
+		peak="{sample}-W500-G1500-FDR0.01-island.bed", 
+		sig="{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
 	output:
 		"Callpeak/SICER/{sample}_W500-G1500-FDR0.01-island.bed", "Callpeak/SICER/Signal/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
 	log:
 		"log/mv_sicer.{sample}.out"
 	shell:
 		"""
-		mv {input} ./Callpeak/SICER
+		mv {input.peak} ./Callpeak/SICER
 		mv Callpeak/SICER/{wildcards.sample}-W500-G1500-FDR0.01-island.bed Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #change name to include an underscore.  This is important for blacklist
-		cd Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #sicer leaves a trailing tab character at the end of every line. For blacklist to work, it has to be removed
-		mv Callpeak/SICER/{wildcards.sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig Callpeak/SICER/Signal/{wildcards.sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig
+		sed -i 's/\t$//g' Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #sicer leaves a trailing tab character at the end of every line. For blacklist to work, it has to be removed
+		mv {input.sig} Callpeak/SICER/Signal/{wildcards.sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig
 		
 		"""
 		#maybe remove the other files like "rm    
