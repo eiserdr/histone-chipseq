@@ -106,7 +106,7 @@ rule sicer:
 		temp("{sample}-W500-G1500-islands-summary")
 	threads: 16
 	log:
-		"log/sicer.{sample}.out"
+		"snakemakelog/sicer.{sample}.out"
 	shell:
 		"sicer -t {input.case} -c {input.ctrl} -s hg19 -rt 1 -w 500 -f 150 -egf .8 -g 1500 -fdr 0.01 -cpu $(($SLURM_CPUS_PER_TASK/2)) --significant_reads"
 rule mv_sicer:
@@ -116,7 +116,7 @@ rule mv_sicer:
 	output:
 		"Callpeak/SICER/{sample}_W500-G1500-FDR0.01-island.bed", "Callpeak/SICER/Signal/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
 	log:
-		"log/mv_sicer.{sample}.out"
+		"snakemakelog/mv_sicer.{sample}.out"
 	shell:
 		"""
 		mv {input.peak} ./Callpeak/SICER
@@ -159,7 +159,7 @@ rule idr_make_pseudorep:
 	output: "IDR/BamFiles/{sample}_pr1.bam", "IDR/BamFiles/{sample}_pr2.bam"
 	shadow: "shallow"	#shallow will create a temporary directory. It will then delete files I don't need. It's nice here because I create a lot of intermediate files.
 	log:
-		"log/idr_pseudorep.{sample}.out"
+		"snakemakelog/idr_pseudorep.{sample}.out"
 	shell:
 		"""
 		nlines=$(samtools view {input} | wc -l)
@@ -180,7 +180,7 @@ rule idr_macs2_broad:
 		temp("IDR/Callpeak/{sample}_{rep}_p0.01_peaks.xls"), 
 		temp("IDR/Callpeak/{sample}_{rep}_p0.01_peaks.gappedPeak")
 	log:
-		"log/idr_macs2_broad_rep.{sample}_{rep}.out"
+		"snakemakelog/idr_macs2_broad_rep.{sample}_{rep}.out"
 	shell:
 		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_p0.01 --outdir IDR/Callpeak --broad --bw 150 --extsize 150 --nomodel"
 
