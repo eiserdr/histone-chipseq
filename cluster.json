@@ -3,7 +3,6 @@
 		"jobname": "default",
 		"mem": "12g",
 		"time": "02:00:00",
-		"out": "{log}",
 		"partition": "norm"
 	},
 	"merge": {
@@ -33,28 +32,23 @@
 	"bdgcmp": {
 		"jobname": "bdgcmp",
 		"mem": "20g",
-		"time": "02:00:00",
-		"out": "log/macs2_bdgcmp.{wildcards.sample}.out"
+		"time": "02:00:00"
 	},
 	"bdgtobw": {
 		"jobname": "sortbdg_bw",
 		"mem": "12g",
-		"time": "02:00:00",
-		"out": "log/macs2_bdgTobw.{wildcards.sample}.out"
+		"time": "02:00:00"
 	},
 	"make_pseudorep_idr": {
 		"jobname": "make_pseudorep_idr",
-		"mem": "80g",
-		"out": "log/idr_pr.{wildcards.sample}_{wildcards.rep}.out"
+		"mem": "80g"
 	},
 	"idr_pr": {
 		"jobname": "idr_pr",
-		"mem": "80g",
-		"out": "log/idr_pr.{wildcards.sample}_{wildcards.rep}.out"
+		"mem": "80g"
 	},
 	"idr_rep": {
-		"jobname": "idr_rep",
-		"out": "log/idr_rep.{wildcards.sample}.out"
+		"jobname": "idr_rep"
 	},
 	"macs2_broad_idr": {
 		"jobname": "idr_call_broad",
@@ -79,14 +73,12 @@
 	"blacklist": {
 		"jobname": "blacklist",
 		"mem": "2g",
-		"time": "1:00:00",
-		"out": "log/blacklist.{wildcards.sample}.out"
+		"time": "1:00:00"
 	},
 	"sort_peaks": {
 		"jobname": "sort",
 		"mem": "2g",
-		"time": "1:00:00",
-		"out": "log/sort_peaks.{wildcards.sample}.out"
+		"time": "1:00:00"
 	},
 	"make_tagAlign": {
 		"jobname": "make_tagAlign",

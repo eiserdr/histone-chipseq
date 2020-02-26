@@ -1,4 +1,5 @@
 --- 
+workdir: ../MP2
 control: MP2_In
 samples_broad: 
   - MP2_27Ac

@@ -5,6 +5,7 @@ import sys
 
 configfile: "config.yaml"
 localrules: all
+workdir: config["workdir"]
 
 CONTROL = config["control"]		#there is only one control, note that the CONTROL variable is not a list.
 SAMPLES_BROAD = config["samples_broad"]
