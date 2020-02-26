@@ -3,7 +3,8 @@
 		"jobname": "default",
 		"mem": "12g",
 		"time": "02:00:00",
-		"partition": "norm"
+		"partition": "norm",
+		"out":"log/{rule}.%j.output"
 	},
 	"merge_bam": {
 		"time": "02:00:00",
@@ -28,6 +29,11 @@
 		"mem": "30g",
 		"time": "04:00:00",
 		"out": "log/sicer.{wildcards.sample}.out"
+	},
+	"mv_sicer": {
+		"mem": "10g",
+		"time": "01:00:00",
+		"out": "log/mv_sicer.{wildcards.sample}.out"
 	},
 	"bdgcmp": {
 		"mem": "20g",
@@ -64,7 +70,7 @@
 		"time": "4:00:00",
 		"out": "log/idr_macs2_narrow_pr.{wildcards.sample}.out"
 	},
-		"idr_pr": {
+	"idr_pr": {
 		"mem": "80g",
 		"out": "log/idr_pr.{wildcards.sample}.out"
 	},
