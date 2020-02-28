@@ -1,7 +1,7 @@
 #!/bin/bash
 #sbatch --cpus-per-task=1 --time=24:00:00 --out=snakemake.out snakemake.sh
 
-
+mkdir ../log
 module load snakemake samtools macs bedtools sicer ucsc idr R|| exit 1
 #snakemake --unlock
 #specific versions:
