@@ -43,6 +43,16 @@ ALL_PHANTOM = expand("out/PhantomPeaks/{sample}_{rep}_NSC_RSC.txt", sample = ALL
 rule all:
 	input: ALL_BAM + ALL_PEAKS + ALL_SIGNAL + ALL_IDR + ALL_PHANTOM
 
+
+#rule sort_bam:
+#	input: "BamFiles/{sample}_{rep}.bam",
+#	output: "BamFiles/{sample}_{rep}.sorted.bam",
+#	shell:
+#		"""
+#		samtools sort {input} >{output}
+#		rm {input}
+		"""
+		
 rule merge_bam:
 	input: "BamFiles/{sample}_1.sorted.bam", "BamFiles/{sample}_2.sorted.bam"
 	output: "BamFiles/{sample}_merged.sorted.bam"
@@ -272,11 +282,12 @@ rule blacklist:
 		"""	
 
 #have to sort peaks by significance after blacklisting. I specify "filt" so that the blacklist occurs before sorting.  I don't think the order matters too much, but snakemake needs it.
+#only sort peak files
 rule sort_peaks:
 	input:
-		"{dir}/{sample}.{peak}"
+		"{dir}/{sample}.{peak}Peak"
 	output:
-		"{dir}/{sample}.sorted.{peak}"
+		"{dir}/{sample}.sorted.{peak}Peak"
 	shell:
 		"""
 		sort -k8,8nr {input} > {output}
