@@ -157,7 +157,8 @@ rule bdgTobw:
 rule idr_make_pseudorep:
 	input: "BamFiles/{sample}.sorted.bam"
 	output: "IDR/BamFiles/{sample}_pr1.bam", "IDR/BamFiles/{sample}_pr2.bam"
-	shadow: "shallow"	#shallow will create a temporary directory. It will then delete files I don't need. It's nice here because I create a lot of intermediate files.
+	#shadow: "shallow"	#shallow will create a temporary linked directory of the current directory. It will then delete files I don't need. It's nice here because I create a lot of intermediate files.
+	# However, I access files in the parent directory relative to the working directory, so the relative path to the parent is no supported.
 	#log:
 	#	"snakemakelog/idr_pseudorep.{sample}.out"
 	shell:
@@ -168,6 +169,7 @@ rule idr_make_pseudorep:
 		samtools view {input} | shuf - | split -d -l $nlines - pr_{wildcards.sample}_
 		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_00 | samtools view -b - > IDR/BamFiles/{wildcards.sample}_pr1.bam
 		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_01 | samtools view -b - > IDR/BamFiles/{wildcards.sample}_pr2.bam
+		rm header_{wildcards.sample}.sam pr_{wildcards.sample}_00 pr_{wildcards.sample}_01
 		"""
 
 ##call peaks at low threshold of p0.01		
