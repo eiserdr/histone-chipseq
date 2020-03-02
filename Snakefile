@@ -5,7 +5,7 @@ import sys
 
 configfile: "config.yaml"
 localrules: all
-workdir: "../out"
+workdir: ".."
 
 CONTROL = config["control"]		#there is only one control, note that the CONTROL variable is not a list.
 SAMPLES_BROAD = config["samples_broad"]
@@ -16,27 +16,27 @@ ALL_SAMPLES = CONTROL.split() + ALL_CASES
 
 ALL_BAM = expand("BamFiles/{sample}_{rep}.sorted.bam", sample = ALL_SAMPLES, rep = ["1","2","merged"])
 
-ALL_PEAKS = expand("Callpeak/Broadpeak/{sample}_{rep}_filt_peaks.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
-expand("Callpeak/Narrowpeak/{sample}_{rep}_filt_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
-expand("Callpeak/SICER/{sample}_{rep}_filt_W500-G1500-FDR0.01-island.bed", sample = SAMPLES_SICER, rep = ["1","2","merged"])
+ALL_PEAKS = expand("out/Callpeak/Broadpeak/{sample}_{rep}_filt_peaks.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
+expand("out/Callpeak/Narrowpeak/{sample}_{rep}_filt_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
+expand("out/Callpeak/SICER/{sample}_{rep}_filt_W500-G1500-FDR0.01-island.bed", sample = SAMPLES_SICER, rep = ["1","2","merged"])
 
-ALL_SIGNAL = expand("Callpeak/Broadpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_BROAD, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
-expand("Callpeak/Narrowpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_NARROW, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
-expand("Callpeak/SICER/Signal/{sample}_{rep}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", sample = SAMPLES_SICER, rep = ["1","2","merged"])
+ALL_SIGNAL = expand("out/Callpeak/Broadpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_BROAD, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
+expand("out/Callpeak/Narrowpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_NARROW, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
+expand("out/Callpeak/SICER/Signal/{sample}_{rep}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", sample = SAMPLES_SICER, rep = ["1","2","merged"])
 
-ALL_IDR = expand("IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
-expand("IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
-expand("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_filt_peaks.sorted.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"], pr_rep = ["1","2"]) + \
-expand("IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
-expand("IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
-expand("IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.narrowPeak", sample = SAMPLES_NARROW) + \
-expand("IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.broadPeak", sample = SAMPLES_BROAD)
-#expand("IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam", sample = SAMPLES_BROAD + SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep =["1","2"]) + \
-#expand("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_filt_peaks.sorted.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep = ["1","2"]) + \
+ALL_IDR = expand("out/IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
+expand("out/IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
+expand("out/IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_filt_peaks.sorted.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"], pr_rep = ["1","2"]) + \
+expand("out/IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
+expand("out/IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
+expand("out/IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.narrowPeak", sample = SAMPLES_NARROW) + \
+expand("out/IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.broadPeak", sample = SAMPLES_BROAD)
+#expand("out/IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam", sample = SAMPLES_BROAD + SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep =["1","2"]) + \
+#expand("out/IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_filt_peaks.sorted.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep = ["1","2"]) + \
 
-ALL_PHANTOM = expand("PhantomPeaks/{sample}_{rep}_NSC_RSC.txt", sample = ALL_CASES, rep = ["1","2","merged"])
+ALL_PHANTOM = expand("out/PhantomPeaks/{sample}_{rep}_NSC_RSC.txt", sample = ALL_CASES, rep = ["1","2","merged"])
 #expand("BamFiles/{sample}_{rep}.tagAlign.gz", sample = ALL_CASES, rep = ["1","2","merged"]) + \
-#expand("PhantomPeaks/{sample}_{rep}_xcorr.pdf", sample = ALL_CASES, rep = ["1","2","merged"])
+#expand("out/PhantomPeaks/{sample}_{rep}_xcorr.pdf", sample = ALL_CASES, rep = ["1","2","merged"])
 
 
 
@@ -54,15 +54,15 @@ rule macs2_broad:
 		case="BamFiles/{sample}.sorted.bam",						#it knows that to only run it on samples specified by SAMPLES_BROAD
 		ctrl = "BamFiles/" + CONTROL + "_merged.sorted.bam"			#I only use the merged input here
 	output: 
-		"Callpeak/Broadpeak/{sample}_peaks.broadPeak", 
-		temp("Callpeak/Broadpeak/{sample}_treat_pileup.bdg"), 
-		temp("Callpeak/Broadpeak/{sample}_control_lambda.bdg"), 
-		temp("Callpeak/Broadpeak/{sample}_peaks.xls"), 
-		temp("Callpeak/Broadpeak/{sample}_peaks.gappedPeak")
+		"out/Callpeak/Broadpeak/{sample}_peaks.broadPeak", 
+		temp("out/Callpeak/Broadpeak/{sample}_treat_pileup.bdg"), 
+		temp("out/Callpeak/Broadpeak/{sample}_control_lambda.bdg"), 
+		temp("out/Callpeak/Broadpeak/{sample}_peaks.xls"), 
+		temp("out/Callpeak/Broadpeak/{sample}_peaks.gappedPeak")
 	#log:
 	#	"log/macs2_broad.{sample}.out"
 	shell:
-		"macs2 callpeak -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample} --outdir Callpeak/Broadpeak --broad --bw 150 --mfold 10 30 --bdg --nomodel --extsize 150  --SPMR"
+		"macs2 callpeak -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample} --outdir out/Callpeak/Broadpeak --broad --bw 150 --mfold 10 30 --bdg --nomodel --extsize 150  --SPMR"
 #temp() will remove those files once the other rules are done using them. 
 
 rule macs2_narrow:
@@ -70,15 +70,15 @@ rule macs2_narrow:
 		case="BamFiles/{sample}.sorted.bam",
 		ctrl = "BamFiles/" + CONTROL + "_merged.sorted.bam"
 	output: 
-		"Callpeak/Narrowpeak/{sample}_peaks.narrowPeak", 
-		temp("Callpeak/Narrowpeak/{sample}_treat_pileup.bdg"), 
-		temp("Callpeak/Narrowpeak/{sample}_control_lambda.bdg"), 
-		temp("Callpeak/Narrowpeak/{sample}_peaks.xls"), 
-		temp("Callpeak/Narrowpeak/{sample}_summits.bed")
+		"out/Callpeak/Narrowpeak/{sample}_peaks.narrowPeak", 
+		temp("out/Callpeak/Narrowpeak/{sample}_treat_pileup.bdg"), 
+		temp("out/Callpeak/Narrowpeak/{sample}_control_lambda.bdg"), 
+		temp("out/Callpeak/Narrowpeak/{sample}_peaks.xls"), 
+		temp("out/Callpeak/Narrowpeak/{sample}_summits.bed")
 	#log:
 	#	"log/macs2_narrow.{sample}.out"
 	shell:
-		"macs2 callpeak -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample} --outdir Callpeak/Narrowpeak --bw 150 --mfold 10 30 --bdg --nomodel --extsize 150 --SPMR"
+		"macs2 callpeak -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample} --outdir out/Callpeak/Narrowpeak --bw 150 --mfold 10 30 --bdg --nomodel --extsize 150 --SPMR"
 		#don't need {wildcards.sample}_peaks.xls, {wildcards.sample}_summits.bed
 		
 #sicer intakes, bed files. And the bed files need to be in separate directories, bc sicer's temporary directories will interfere with each other
@@ -86,7 +86,7 @@ rule bamtobed:
 	input:
 		"BamFiles/{sample}.sorted.bam"
 	output:
-		"BedFiles/{sample}.bed"
+		"out/BedFiles/{sample}.bed" 	#Maybe should be temp
 	#log:
 	#	"log/bamtobed.{sample}.out"
 	shell:
@@ -95,8 +95,9 @@ rule bamtobed:
 #sicer2 won't run if I specify an out directory. So I have to make another rule to move the files to the right directory		
 rule sicer:
 	input:
-		case="BedFiles/{sample}.bed",
-		ctrl= "BedFiles/" + CONTROL + "_merged.bed" #Only use merged input file
+		case="out/BedFiles/{sample}.bed",
+		ctrl= "out/BedFiles/" + CONTROL + "_merged.bed" #Only use merged input file
+		##Maybe use a shadow directory here
 	output: 
 		temp("{sample}-W500-G1500-FDR0.01-island.bed"), #This peak file is temp because it will be blacklist filtered
 		"{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", 
@@ -114,15 +115,16 @@ rule mv_sicer:
 		peak="{sample}-W500-G1500-FDR0.01-island.bed", 
 		sig="{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
 	output:
-		"Callpeak/SICER/{sample}_W500-G1500-FDR0.01-island.bed", "Callpeak/SICER/Signal/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
+		"out/Callpeak/SICER/{sample}_W500-G1500-FDR0.01-island.bed", 
+		"out/Callpeak/SICER/Signal/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
 	#log:
 	#	"snakemakelog/mv_sicer.{sample}.out"
 	shell:
 		"""
-		mv {input.peak} ./Callpeak/SICER
-		mv Callpeak/SICER/{wildcards.sample}-W500-G1500-FDR0.01-island.bed Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #change name to include an underscore.  This is important for blacklist
-		sed -i 's/\t$//g' Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #sicer leaves a trailing tab character at the end of every line. For blacklist to work, it has to be removed
-		mv {input.sig} Callpeak/SICER/Signal/{wildcards.sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig
+		mv {input.peak} out/Callpeak/SICER
+		mv out/Callpeak/SICER/{wildcards.sample}-W500-G1500-FDR0.01-island.bed out/Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #change name to include an underscore.  This is important for blacklist
+		sed -i 's/\t$//g' out/Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #sicer leaves a trailing tab character at the end of every line. For blacklist to work, it has to be removed
+		mv {input.sig} out/Callpeak/SICER/Signal/{wildcards.sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig
 		
 		"""
 		#maybe remove the other files like "rm    
@@ -132,12 +134,13 @@ rule mv_sicer:
 
 rule bdgcmp:
 	input:
-		case="Callpeak/{dir}/{sample}_treat_pileup.bdg", 
-		ctrl="Callpeak/{dir}/{sample}_control_lambda.bdg"
+		case="out/Callpeak/{dir}/{sample}_treat_pileup.bdg", 
+		ctrl="out/Callpeak/{dir}/{sample}_control_lambda.bdg"
 	output:
-		temp("Callpeak/{dir}/{sample}_ppois.bdg"), temp("Callpeak/{dir}/{sample}_FE.bdg")  #These are temporary files that will be made into bigwig files.
+		temp("out/Callpeak/{dir}/{sample}_ppois.bdg"), 
+		temp("out/Callpeak/{dir}/{sample}_FE.bdg")  #These are temporary files that will be made into bigwig files.
 	shell:
-		"macs2 bdgcmp -t {input.case} -c {input.ctrl} -m FE ppois --o-prefix Callpeak/{wildcards.dir}/{wildcards.sample}"
+		"macs2 bdgcmp -t {input.case} -c {input.ctrl} -m FE ppois --o-prefix out/Callpeak/{wildcards.dir}/{wildcards.sample}"
 
 #module ucsc
 #couldn't figure out a way to write the bw output to the Signal file.  So I had to make two mv_bw rules
@@ -148,7 +151,7 @@ rule bdgTobw:
 	shell:
 		"""
 		sort -k1,1 -k2,2n {input} > {input}.sorted
-		bedGraphToBigWig {input}.sorted /fdb/genomebrowser/chrom.sizes/hg19/chrom.sizes {output}
+		bedGraphToBigWig {input}.sorted /fdb/genomebrowser/chrom.sizes/hg19/chrom.sizes {output}		#I should include this in scripts dir
 		rm {input}.sorted
 		"""
 
@@ -156,8 +159,10 @@ rule bdgTobw:
 		
 rule idr_make_pseudorep:
 	input: "BamFiles/{sample}.sorted.bam"
-	output: "IDR/BamFiles/{sample}_pr1.bam", "IDR/BamFiles/{sample}_pr2.bam"
-	#shadow: "shallow"	#shallow will create a temporary linked directory of the current directory. It will then delete files I don't need. It's nice here because I create a lot of intermediate files.
+	output: 
+		"out/IDR/BamFiles/{sample}_pr1.bam", 
+		"out/IDR/BamFiles/{sample}_pr2.bam" #These should be temporary.
+	shadow: "shallow"	#shallow will create a temporary linked directory of the current directory. It will then delete files I don't need. It's nice here because I create a lot of intermediate files.
 	# However, I access files in the parent directory relative to the working directory, so the relative path to the parent is no supported.
 	#log:
 	#	"snakemakelog/idr_pseudorep.{sample}.out"
@@ -167,9 +172,8 @@ rule idr_make_pseudorep:
 		nlines=$(((nlines+1)/2))
 		samtools view -H {input} > header_{wildcards.sample}.sam
 		samtools view {input} | shuf - | split -d -l $nlines - pr_{wildcards.sample}_
-		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_00 | samtools view -b - > IDR/BamFiles/{wildcards.sample}_pr1.bam
-		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_01 | samtools view -b - > IDR/BamFiles/{wildcards.sample}_pr2.bam
-		rm header_{wildcards.sample}.sam pr_{wildcards.sample}_00 pr_{wildcards.sample}_01
+		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_00 | samtools view -b - > out/IDR/BamFiles/{wildcards.sample}_pr1.bam
+		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_01 | samtools view -b - > out/IDR/BamFiles/{wildcards.sample}_pr2.bam
 		"""
 
 ##call peaks at low threshold of p0.01		
@@ -178,78 +182,78 @@ rule idr_macs2_broad:
 		case="BamFiles/{sample}_{rep}.sorted.bam",
 		ctrl="BamFiles/" + CONTROL + "_{rep}.sorted.bam"
 	output: 
-		temp("IDR/Callpeak/{sample}_{rep}_p0.01_peaks.broadPeak"), #temp bc I keep sorted and filtered peakfile
-		temp("IDR/Callpeak/{sample}_{rep}_p0.01_peaks.xls"), 
-		temp("IDR/Callpeak/{sample}_{rep}_p0.01_peaks.gappedPeak")
+		temp("out/IDR/Callpeak/{sample}_{rep}_p0.01_peaks.broadPeak"), #temp bc I keep sorted and filtered peakfile
+		temp("out/IDR/Callpeak/{sample}_{rep}_p0.01_peaks.xls"), 
+		temp("out/IDR/Callpeak/{sample}_{rep}_p0.01_peaks.gappedPeak")
 	#log:
 	#	"snakemakelog/idr_macs2_broad_rep.{sample}_{rep}.out"
 	shell:
-		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_p0.01 --outdir IDR/Callpeak --broad --bw 150 --extsize 150 --nomodel"
+		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_p0.01 --outdir out/IDR/Callpeak --broad --bw 150 --extsize 150 --nomodel"
 
 rule idr_macs2_narrow:
 	input: 
 		case="BamFiles/{sample}_{rep}.sorted.bam",
 		ctrl="BamFiles/" + CONTROL + "_{rep}.sorted.bam"
 	output: 
-		temp("IDR/Callpeak/{sample}_{rep}_p0.01_peaks.narrowPeak"), 
-		temp("IDR/Callpeak/{sample}_{rep}_p0.01_peaks.xls"), 
-		temp("IDR/Callpeak/{sample}_{rep}_p0.01_summits.bed")
+		temp("out/IDR/Callpeak/{sample}_{rep}_p0.01_peaks.narrowPeak"), 
+		temp("out/IDR/Callpeak/{sample}_{rep}_p0.01_peaks.xls"), 
+		temp("out/IDR/Callpeak/{sample}_{rep}_p0.01_summits.bed")
 	#log:
 	#	"log/idr_macs2_narrow_rep.{sample}_{rep}.out"
 	shell:
-		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_p0.01 --outdir IDR/Callpeak --bw 150 --extsize 150 --nomodel"
+		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_p0.01 --outdir out/IDR/Callpeak --bw 150 --extsize 150 --nomodel"
 		
 rule idr_macs2_broad_pr:
 	input: 
-		case="IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam",
+		case="out/IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam",
 		ctrl="BamFiles/" + CONTROL + "_{rep}.sorted.bam"
 	output: 
-		temp("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_peaks.broadPeak"),  
-		temp("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_peaks.xls"), 
-		temp("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_peaks.gappedPeak")
+		temp("out/IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_peaks.broadPeak"),  
+		temp("out/IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_peaks.xls"), 
+		temp("out/IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_peaks.gappedPeak")
 	#log:
 	#	"log/idr_macs2_broad_pr.{sample}_{rep}_pr{pr_rep}.out"
 	shell:
-		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_pr{wildcards.pr_rep}_p0.01 --outdir IDR/Callpeak --broad --bw 150 --extsize 150 --nomodel"		
+		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_pr{wildcards.pr_rep}_p0.01 --outdir out/IDR/Callpeak --broad --bw 150 --extsize 150 --nomodel"		
 rule idr_macs2_narrow_pr:
 	input: 
-		case="IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam",
+		case="out/IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam",
 		ctrl="BamFiles/" + CONTROL + "_{rep}.sorted.bam"
 	output: 
-		temp("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_peaks.narrowPeak"), 
-		temp("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_peaks.xls"), 
-		temp("IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_summits.bed")
+		temp("out/IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_peaks.narrowPeak"), 
+		temp("out/IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_peaks.xls"), 
+		temp("out/IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_summits.bed")
 	#log:
 	#	"log/idr_macs2_narrow_pr.{sample}_{rep}_pr{pr_rep}.out"
 	shell:
-		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_pr{wildcards.pr_rep}_p0.01 --outdir IDR/Callpeak --bw 150 --extsize 150 --nomodel"	
+		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_pr{wildcards.pr_rep}_p0.01 --outdir out/IDR/Callpeak --bw 150 --extsize 150 --nomodel"	
 
 
 #call idr with threshold of 0.05.
 rule idr_pr:
 	input:
-		pr1= "IDR/Callpeak/{sample}_{rep}_pr1_p0.01_filt_peaks.sorted.{peak}",
-		pr2= "IDR/Callpeak/{sample}_{rep}_pr2_p0.01_filt_peaks.sorted.{peak}",
-		peaklist= "IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.{peak}"
+		pr1= "out/IDR/Callpeak/{sample}_{rep}_pr1_p0.01_filt_peaks.sorted.{peak}",
+		pr2= "out/IDR/Callpeak/{sample}_{rep}_pr2_p0.01_filt_peaks.sorted.{peak}",
+		peaklist= "out/IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.{peak}"
 	output:
-		"IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.{peak}"
+		"out/IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.{peak}"
 	shell:
 		"""
 		idr --samples {input.pr1} {input.pr2} --input-file-type {wildcards.peak} --peak-list {input.peaklist} --output-file {output} --idr-threshold 0.05
-		wc -l {output} >> IDR/peakcount.txt
+		wc -l {output} >> out/IDR/peakcount.txt
 		"""
 
 rule idr_rep:
 	input:
-		rep1= "IDR/Callpeak/{sample}_1_p0.01_filt_peaks.sorted.{peak}",
-		rep2= "IDR/Callpeak/{sample}_2_p0.01_filt_peaks.sorted.{peak}",
-		peaklist= "IDR/Callpeak/{sample}_merged_p0.01_filt_peaks.sorted.{peak}"
+		rep1= "out/IDR/Callpeak/{sample}_1_p0.01_filt_peaks.sorted.{peak}",
+		rep2= "out/IDR/Callpeak/{sample}_2_p0.01_filt_peaks.sorted.{peak}",
+		peaklist= "out/IDR/Callpeak/{sample}_merged_p0.01_filt_peaks.sorted.{peak}"
 	output:
-		"IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.{peak}"
+		"out/IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.{peak}"
 	shell:
 		"""
 		idr --samples {input.rep1} {input.rep2} --input-file-type {wildcards.peak} --peak-list {input.peaklist} --output-file {output} --idr-threshold 0.05
-		wc -l {output} >> IDR/peakcount.txt
+		wc -l {output} >> out/IDR/peakcount.txt
 		"""
 
 #Blacklist and sort_peaks both run on the idr peaks.  Their order doesn't matter. But snakemake calls it an ambiguous rule exception because it doesn't know which one to run first. I just tell snakemake to run blacklist first
@@ -263,7 +267,7 @@ rule blacklist:
 		"{Dir}/{sample}_filt_{peaks}"
 	shell:
 		"""
-		bedtools intersect -v -a {input} -b ../histone-chipseq/scripts/wgEncodeDacMapabilityConsensusExcludable.bed > {output}
+		bedtools intersect -v -a {input} -b histone-chipseq/scripts/wgEncodeDacMapabilityConsensusExcludable.bed > {output}
 		rm {input}	#I don't like deleting files like this. But I'm not sure how else to do that.
 		"""	
 
@@ -295,21 +299,21 @@ rule phantompeak_xcorr:
 	input:
 		"BamFiles/{sample}.tagAlign.gz"
 	output:
-		text="PhantomPeaks/{sample}_xcorr.txt",
-		plot="PhantomPeaks/{sample}_xcorr.pdf"
+		text="out/PhantomPeaks/{sample}_xcorr.txt",
+		plot="out/PhantomPeaks/{sample}_xcorr.pdf"
 	threads: 12
 	#log:
 	#	"snakemakelog/phantompeak_xcorr.{sample}.out"
 	shell:
-		"Rscript ../histone-chipseq/scripts/run_spp.R  -c={input} -out={output.text} -p=$SLURM_CPUS_PER_TASK -savp={output.plot} -rf" #one file
+		"Rscript histone-chipseq/scripts/run_spp.R  -c={input} -out={output.text} -p=$SLURM_CPUS_PER_TASK -savp={output.plot} -rf" 
 		
 rule phantompeak_NSC_RSC:
 	input:
-		"PhantomPeaks/{sample}_xcorr.txt"
+		"out/PhantomPeaks/{sample}_xcorr.txt"
 	output:
-		"PhantomPeaks/{sample}_NSC_RSC.txt"
+		"out/PhantomPeaks/{sample}_NSC_RSC.txt"
 	#log:
 	#	"snakemakelog/phantompeak_nsc_rsc.{sample}.out"
 	shell:
-		"python ../histone-chipseq/scripts/nscRsc.py {input} {output}"
+		"python histone-chipseq/scripts/nscRsc.py {input} {output}"
 
