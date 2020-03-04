@@ -31,7 +31,7 @@ expand("out/IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.broadPeak", sample =
 expand("out/IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
 expand("out/IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.narrowPeak", sample = SAMPLES_NARROW) + \
 expand("out/IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.broadPeak", sample = SAMPLES_BROAD)
-#expand("out/IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam", sample = SAMPLES_BROAD + SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep =["1","2"]) + \
+#expand("out/IDR/{sample}_{rep}_pr{pr_rep}.bam", sample = SAMPLES_BROAD + SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep =["1","2"]) + \
 #expand("out/IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_filt_peaks.sorted.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"], pr_rep = ["1","2"]) + \
 
 ALL_PHANTOM = expand("out/PhantomPeaks/{sample}_{rep}_NSC_RSC.txt", sample = ALL_CASES, rep = ["1","2","merged"])
@@ -166,8 +166,8 @@ rule bdgTobw:
 rule idr_make_pseudorep:
 	input: "BamFiles/{sample}.sorted.bam"
 	output: 
-		"out/IDR/BamFiles/{sample}_pr1.bam", 
-		"out/IDR/BamFiles/{sample}_pr2.bam" #These should be temporary.
+		temp("out/IDR/{sample}_pr1.bam"), 
+		temp("out/IDR/{sample}_pr2.bam") 
 	shadow: "shallow"	#shallow will create a temporary linked directory of the current directory. It will then delete files I don't need. It's nice here because I create a lot of intermediate files.
 	# However, I access files in the parent directory relative to the working directory, so the relative path to the parent is no supported.
 	#log:
@@ -177,9 +177,9 @@ rule idr_make_pseudorep:
 		nlines=$(samtools view {input} | wc -l)
 		nlines=$(((nlines+1)/2))
 		samtools view -H {input} > header_{wildcards.sample}.sam
-		samtools view {input} | shuf - | split -d -l $nlines - pr_{wildcards.sample}_
-		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_00 | samtools view -b - > out/IDR/BamFiles/{wildcards.sample}_pr1.bam
-		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_01 | samtools view -b - > out/IDR/BamFiles/{wildcards.sample}_pr2.bam
+		samtools view {input} | shuf --random-source={input} - | split -d -l $nlines - pr_{wildcards.sample}_
+		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_00 | samtools view -b - > out/IDR/{wildcards.sample}_pr1.bam
+		cat header_{wildcards.sample}.sam pr_{wildcards.sample}_01 | samtools view -b - > out/IDR/{wildcards.sample}_pr2.bam
 		"""
 
 ##call peaks at low threshold of p0.01		
@@ -211,7 +211,7 @@ rule idr_macs2_narrow:
 		
 rule idr_macs2_broad_pr:
 	input: 
-		case="out/IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam",
+		case="out/IDR/{sample}_{rep}_pr{pr_rep}.bam",
 		ctrl="BamFiles/" + CONTROL + "_{rep}.sorted.bam"
 	output: 
 		temp("out/IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_peaks.broadPeak"),  
@@ -223,7 +223,7 @@ rule idr_macs2_broad_pr:
 		"macs2 callpeak -p 0.01 -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample}_{wildcards.rep}_pr{wildcards.pr_rep}_p0.01 --outdir out/IDR/Callpeak --broad --bw 150 --extsize 150 --nomodel"		
 rule idr_macs2_narrow_pr:
 	input: 
-		case="out/IDR/BamFiles/{sample}_{rep}_pr{pr_rep}.bam",
+		case="out/IDR/{sample}_{rep}_pr{pr_rep}.bam",
 		ctrl="BamFiles/" + CONTROL + "_{rep}.sorted.bam"
 	output: 
 		temp("out/IDR/Callpeak/{sample}_{rep}_pr{pr_rep}_p0.01_peaks.narrowPeak"), 
