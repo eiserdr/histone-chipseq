@@ -242,7 +242,7 @@ rule idr_pr:
 		pr2= "out/IDR/Callpeak/{sample}_{rep}_pr2_p0.01_filt_peaks.sorted.{peak}",
 		peaklist= "out/IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.{peak}"
 	output:
-		"out/IDR/IDR/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.{peak}"
+		"out/IDR/IDRPeaks/{sample}_{rep}_pr1-2_IDR0.05_filt_peaks.{peak}"
 	shell:
 		"""
 		idr --samples {input.pr1} {input.pr2} --input-file-type {wildcards.peak} --peak-list {input.peaklist} --output-file {output} --idr-threshold 0.05
@@ -255,7 +255,7 @@ rule idr_rep:
 		rep2= "out/IDR/Callpeak/{sample}_2_p0.01_filt_peaks.sorted.{peak}",
 		peaklist= "out/IDR/Callpeak/{sample}_merged_p0.01_filt_peaks.sorted.{peak}"
 	output:
-		"out/IDR/IDR/{sample}_merged_rep1-2_IDR0.05_filt_peaks.{peak}"
+		"out/IDR/IDRPeaks/{sample}_merged_rep1-2_IDR0.05_filt_peaks.{peak}"
 	shell:
 		"""
 		idr --samples {input.rep1} {input.rep2} --input-file-type {wildcards.peak} --peak-list {input.peaklist} --output-file {output} --idr-threshold 0.05
