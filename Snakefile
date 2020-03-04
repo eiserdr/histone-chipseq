@@ -96,7 +96,7 @@ rule bamtobed:
 	input:
 		"BamFiles/{sample}.sorted.bam"
 	output:
-		"out/BedFiles/{sample}.bed" 	#Maybe should be temp
+		temp("out/{sample}.bed") 	#Maybe should be temp
 	#log:
 	#	"log/bamtobed.{sample}.out"
 	shell:
@@ -105,8 +105,8 @@ rule bamtobed:
 #sicer2 won't run if I specify an out directory. So I have to make another rule to move the files to the right directory		
 rule sicer:
 	input:
-		case="out/BedFiles/{sample}.bed",
-		ctrl= "out/BedFiles/" + CONTROL + "_merged.bed" #Only use merged input file
+		case="out/{sample}.bed",
+		ctrl= "out/" + CONTROL + "_merged.bed" #Only use merged input file
 		##Maybe use a shadow directory here
 	output: 
 		"{sample}-W500-G1500-FDR0.01-island.bed",
