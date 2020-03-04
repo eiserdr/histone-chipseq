@@ -51,7 +51,7 @@ rule all:
 #		"""
 #		samtools sort {input} >{output}
 #		rm {input}
-		"""
+#		"""
 		
 rule merge_bam:
 	input: "BamFiles/{sample}_1.sorted.bam", "BamFiles/{sample}_2.sorted.bam"
@@ -109,7 +109,7 @@ rule sicer:
 		ctrl= "out/BedFiles/" + CONTROL + "_merged.bed" #Only use merged input file
 		##Maybe use a shadow directory here
 	output: 
-		temp("{sample}-W500-G1500-FDR0.01-island.bed"), #This peak file is temp because it will be blacklist filtered
+		"{sample}-W500-G1500-FDR0.01-island.bed",
 		"{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", 
 		temp("{sample}-W500-G1500-FDR0.01-islandfiltered.bed"), 
 		temp("{sample}-W500-G1500.scoreisland"), 
@@ -127,17 +127,13 @@ rule mv_sicer:
 	output:
 		"out/Callpeak/SICER/{sample}_W500-G1500-FDR0.01-island.bed", 
 		"out/Callpeak/SICER/Signal/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
-	#log:
-	#	"snakemakelog/mv_sicer.{sample}.out"
 	shell:
 		"""
 		mv {input.peak} out/Callpeak/SICER
 		mv out/Callpeak/SICER/{wildcards.sample}-W500-G1500-FDR0.01-island.bed out/Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #change name to include an underscore.  This is important for blacklist
 		sed -i 's/\t$//g' out/Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #sicer leaves a trailing tab character at the end of every line. For blacklist to work, it has to be removed
 		mv {input.sig} out/Callpeak/SICER/Signal/{wildcards.sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig
-		
 		"""
-		#maybe remove the other files like "rm    
 		
 ###Signal Files ####
 #sicer already makes signal files, but I need to for macs2
@@ -161,7 +157,7 @@ rule bdgTobw:
 	shell:
 		"""
 		sort -k1,1 -k2,2n {input} > {input}.sorted
-		bedGraphToBigWig {input}.sorted /fdb/genomebrowser/chrom.sizes/hg19/chrom.sizes {output}		#I should include this in scripts dir
+		bedGraphToBigWig {input}.sorted /fdb/genomebrowser/chrom.sizes/hg19/chrom.sizes {output}
 		rm {input}.sorted
 		"""
 
