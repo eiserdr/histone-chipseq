@@ -17,6 +17,12 @@ Edit the config.yaml file with your sample names. They are organized by which pe
 **samples_narrow** will use macs2 regular narrowpeak caller. Used for H3K4me3.  
 **sicer** uses sicer, for very long peak regions. Used for H3K27me3.  
 
+If your samples are named KP4, here's a quick way to alter the config file.
+```
+sed -i 's/CoLo/KP4/g' histone-chipseq/config.yaml 
+```
+The Bam Files should follow the naming convention shown below:
+
 ```
 ├ BamFiles                #This is an example of what input is expected. Please use this naming convention of *_1.sorted.bam
 │ ├ MP2_In_1.sorted.bam
@@ -76,4 +82,24 @@ Edit the config.yaml file with your sample names. They are organized by which pe
     ├ *_xcorr.txt
     └ *_NSC_RSC.txt
 
+```
+Callpeaks broadpeak is run with these parameters on macs2.2.5
+```
+macs2 callpeak -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample} --outdir out/Callpeak/Broadpeak --broad --bw 150 --mfold 10 30 --bdg --nomodel --extsize 150  --SPMR
+```
+Callpeaks narrowpeak is run with the same parameter, but without the --broad parameter
+Signal Files are produced with macs2 bdgcmp:
+```
+macs2 bdgcmp -t {input.case} -c {input.ctrl} -m FE ppois
+```
+
+SICER is run on sicer2-1.0.0
+```
+sicer -t {input.case} -c {input.ctrl} -s hg19 -rt 1 -w 500 -f 150 -egf .8 -g 1500 -fdr 0.01 -cpu $(($SLURM_CPUS_PER_TASK/2)) --significant_reads
+```
+Phantom Peaks are produced by run_spp.R from phantompeakqualtools
+The NSC RSC values produced by that is not using the right input, so I recalculate them useing nscRsc.py
+```
+Rscript histone-chipseq/scripts/run_spp.R  -c=*tagalign.gz -out={xcorr.text} -p=$SLURM_CPUS_PER_TASK -savp={xcorr.plot} -rf
+python histone-chipseq/scripts/nscRsc.py {input} {output}
 ```
