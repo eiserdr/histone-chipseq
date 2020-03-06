@@ -292,7 +292,7 @@ rule phantompeak_make_tagalign:
 	input:
 		"BamFiles/{sample}.sorted.bam"
 	output:
-		"BamFiles/{sample}.tagAlign.gz" #make this temp
+		temp("BamFiles/{sample}.tagAlign.gz")
 	threads: 4
 	#log:
 	#	"snakemakelog/phantompeak_tagAlign.{sample}.out"
