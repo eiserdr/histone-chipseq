@@ -1,9 +1,9 @@
 --- 
-control: CoLo_In
+control: KP4_In
 samples_broad: 
-  - CoLo_27Ac
-  - CoLo_4me1
+  - KP4_27Ac
+  - KP4_4me1
 samples_narrow: 
-  - CoLo_4me3
+  - KP4_4me3
 samples_sicer: 
-  - CoLo_27me3
+  - KP4_27me3
