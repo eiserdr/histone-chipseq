@@ -7,3 +7,5 @@ samples_narrow:
   - CoLo_4me3
 samples_sicer: 
   - CoLo_27me3
+#hg19 or hg38
+genome: hg19

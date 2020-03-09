@@ -155,7 +155,7 @@ rule bdgTobw:
 	shell:
 		"""
 		sort -k1,1 -k2,2n {input} > {input}.sorted
-		bedGraphToBigWig {input}.sorted /fdb/genomebrowser/chrom.sizes/hg19/chrom.sizes {output}
+		bedGraphToBigWig {input}.sorted histone-chipseq/scripts/hg19.chrom.sizes {output}
 		rm {input}.sorted
 		"""
 
