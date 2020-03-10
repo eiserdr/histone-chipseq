@@ -1,4 +1,4 @@
-#sbatch --cpus-per-task=2 --time=2:00:00 snakemake.sh
+#sbatch --cpus-per-task=2 --time=24:00:00 snakemake.sh
 #snakemake --unlock
 #To remove everyting made by snakemake: snakemake all --delete-all-output
 import sys
@@ -7,6 +7,7 @@ configfile: "config.yaml"
 localrules: all
 workdir: ".."
 
+GENOME=config["genome"]
 CONTROL = config["control"]		#there is only one control, note that the CONTROL variable is not a list.
 SAMPLES_BROAD = config["samples_broad"]
 SAMPLES_NARROW = config["samples_narrow"]
@@ -114,10 +115,11 @@ rule sicer:
 		temp("{sample}-W500-normalized.wig"), 
 		temp("{sample}-W500-G1500-islands-summary")
 	threads: 16
+	params: genome = GENOME
 	#log:
 	#	"snakemakelog/sicer.{sample}.out"
 	shell:
-		"sicer -t {input.case} -c {input.ctrl} -s hg19 -rt 1 -w 500 -f 150 -egf .8 -g 1500 -fdr 0.01 -cpu $(($SLURM_CPUS_PER_TASK/2)) --significant_reads"
+		"sicer -t {input.case} -c {input.ctrl} -s {params.genome} -rt 1 -w 500 -f 150 -egf .8 -g 1500 -fdr 0.01 -cpu $(($SLURM_CPUS_PER_TASK/2)) --significant_reads"
 rule mv_sicer:
 	input:
 		peak="{sample}-W500-G1500-FDR0.01-island.bed", 
@@ -147,15 +149,15 @@ rule bdgcmp:
 		"macs2 bdgcmp -t {input.case} -c {input.ctrl} -m FE ppois --o-prefix out/Callpeak/{wildcards.dir}/{wildcards.sample}"
 
 #module ucsc
-#couldn't figure out a way to write the bw output to the Signal file.  So I had to make two mv_bw rules
 rule bdgTobw:
 	input: "{dir}/{sample}.bdg"
 	output: "{dir}/Signal/{sample}.bw"
 	threads: 12
+	params: chrom_sizes= "histone-chipseq/scripts/" + GENOME + ".chrom.sizes"
 	shell:
 		"""
 		sort -k1,1 -k2,2n {input} > {input}.sorted
-		bedGraphToBigWig {input}.sorted histone-chipseq/scripts/hg19.chrom.sizes {output}
+		bedGraphToBigWig {input}.sorted {params.chrom_sizes} {output}
 		rm {input}.sorted
 		"""
 
@@ -269,9 +271,10 @@ rule blacklist:
 		"{Dir}/{sample}_{peaks}"
 	output:
 		"{Dir}/{sample}_filt_{peaks}"
+	params: "histone-chipseq/scripts/" + GENOME + "-blacklist.v2.bed"
 	shell:
 		"""
-		bedtools intersect -v -a {input} -b histone-chipseq/scripts/wgEncodeDacMapabilityConsensusExcludable.bed > {output}
+		bedtools intersect -v -a {input} -b {params} > {output}
 		rm {input}	#I don't like deleting files like this. But I'm not sure how else to do that.
 		"""	
 

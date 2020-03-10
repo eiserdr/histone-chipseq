@@ -10,6 +10,7 @@
 ### MP2_27Ac_merged.tagAlign.gz	201770968	-5,170,350	0.682227116617166,0.668912440036005,0.658472037176196	70	0.654604	1500	0.649357	1.050619	6.264592	2
 ### More info at: https://github.com/kundajelab/phantompeakqualtools
 
+###To use this program: python nscRsc.py <input_phantompeakfile> <new_output_filename>
 
 import sys, getopt
 def main(input, output):
