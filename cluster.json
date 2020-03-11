@@ -2,32 +2,32 @@
 	"__default__": {
 		"jobname": "default",
 		"mem": "12g",
-		"time": "02:00:00",
+		"time": "04:00:00",
 		"partition": "norm",
 		"out":"../log/{rule}.%j.output"
 	},
 	"merge_bam": {
-		"time": "02:00:00",
+		"time": "04:00:00",
 		"mem": "2g",
 		"out": "../log/merge_bam.{wildcards.sample}.out"
 	},
 	"macs2_broad": {
 		"mem": "8g",
-		"time": "04:00:00",
+		"time": "05:00:00",
 		"out": "../log/macs2_broad.{wildcards.sample}.out"
 	},
 	"macs2_narrow": {
-		"time": "04:00:00",
+		"time": "05:00:00",
 		"out": "../log/macs2_narrow.{wildcards.sample}.out"
 	},
 	"bamtobed": {
 		"mem": "8g",
-		"time": "01:00:00",
+		"time": "02:00:00",
 		"out": "../log/bamtobed.{wildcards.sample}.out"
 	},
 	"sicer": {
 		"mem": "30g",
-		"time": "04:00:00",
+		"time": "06:00:00",
 		"out": "../log/sicer.{wildcards.sample}.out"
 	},
 	"mv_sicer": {
@@ -37,12 +37,12 @@
 	},
 	"bdgcmp": {
 		"mem": "20g",
-		"time": "02:00:00",
+		"time": "03:00:00",
 		"out": "../log/bdgcmp.{wildcards.sample}.out"
 	},
 	"bdgtobw": {
 		"mem": "12g",
-		"time": "02:00:00",
+		"time": "03:00:00",
 		"out": "../log/bdgtobw.{wildcards.sample}.out"
 	},
 	"idr_make_pseudorep": {
@@ -51,23 +51,23 @@
 	},
 	"idr_macs2_broad": {
 		"mem": "8g",
-		"time": "4:00:00",
+		"time": "5:00:00",
 		"out": "../log/idr_macs2_broad.{wildcards.sample}.out"
 	},
 	"idr_macs2_narrow": {
 		"mem": "8g",
-		"time": "4:00:00",
+		"time": "5:00:00",
 		"out": "../log/idr_macs2_narrow.{wildcards.sample}.out"
 	},
 	"idr_macs2_broad_pr": {
 		"mem": "8g",
-		"time": "4:00:00",
+		"time": "5:00:00",
 		"out": "../log/idr_macs2_broad_pr.{wildcards.sample}.out"
 	},
 	"idr_macs2_narrow_pr": {
 		"jobname": "idr_call_narrow_pr",
 		"mem": "8g",
-		"time": "4:00:00",
+		"time": "5:00:00",
 		"out": "../log/idr_macs2_narrow_pr.{wildcards.sample}.out"
 	},
 	"idr_pr": {
@@ -79,27 +79,27 @@
 	},
 	"blacklist": {
 		"mem": "2g",
-		"time": "1:00:00",
+		"time": "2:00:00",
 		"out": "../log/blacklist.{wildcards.sample}.out"
 	},
 	"sort_peaks": {
 		"mem": "2g",
-		"time": "1:00:00",
+		"time": "2:00:00",
 		"out": "../log/sort_peaks.{wildcards.sample}.out"
 	},
 	"phantompeak_make_tagAlign": {
 		"mem": "2g",
-		"time": "1:00:00",
+		"time": "2:00:00",
 		"out": "../log/phantompeak_make_tagalign.{wildcards.sample}.out"
 	},
 	"phantompeak_xcorr": {
 		"mem": "32g",
-		"time": "3:00:00",
+		"time": "4:00:00",
 		"out": "../log/phantompeak_xcorr.{wildcards.sample}.out"
 	},
 	"phantompeak_NSC_RSC": {
 		"mem": "1g",
-		"time": "0:05:00",
+		"time": "0:10:00",
 		"out": "../log/calc_nsc_rsc.{wildcards.sample}.out"
 	}
 
