@@ -26,8 +26,8 @@
 		"out": "../log/bamtobed.{wildcards.sample}.out"
 	},
 	"sicer": {
-		"mem": "30g",
-		"time": "06:00:00",
+		"mem": "40g",
+		"time": "08:00:00",
 		"out": "../log/sicer.{wildcards.sample}.out"
 	},
 	"mv_sicer": {
