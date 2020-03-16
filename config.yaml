@@ -1,11 +1,11 @@
 --- 
-control: KP4_In
+control: Sample_In
 samples_broad: 
-  - KP4_27Ac
-  - KP4_4me1
+  - Sample_27Ac
+  - Sample_4me1
 samples_narrow: 
-  - KP4_4me3
+  - Sample_4me3
 samples_sicer: 
-  - KP4_27me3
+  - Sample_27me3
 #hg19 or hg38
 genome: hg19
