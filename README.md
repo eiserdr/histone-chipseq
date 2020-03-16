@@ -1,5 +1,5 @@
 # Histone-ChIPSeq-Pipeline
-## Updated 26 Feb 2020
+## Updated 16 Mar 2020
 This pipeline used in Amundadottir Lab for Pancreas cell line histone chip-seq data on the 2018(CoLo, HPDE, hTert, KP4, PATU, SU8686) and 2019(PANC-1 and MIAPaCa-2) cell lines. This is only for use on NIH's HPC biowulf
 
 # Setup
@@ -19,32 +19,39 @@ Edit the config.yaml file with your sample names. They are organized by which pe
 
 If your samples are named KP4, here's a quick way to alter the config file.
 ```
-sed -i 's/CoLo/KP4/g' histone-chipseq/config.yaml 
+sed -i 's/Sample/KP4/g' histone-chipseq/config.yaml 
 ```
 The Bam Files should follow the naming convention shown below:
 
 ```
 ├ BamFiles                #This is an example of what input is expected. Please use this naming convention of *_1.sorted.bam
-│ ├ MP2_In_1.sorted.bam
-│ ├ MP2_In_2.sorted.bam
-│ ├ MP2_27Ac_1.sorted.bam
-│ ├ MP2_27Ac_2.sorted.bam
-│ ├ MP2_27me3_1.sorted.bam
-│ ├ MP2_27me3_2.sorted.bam
-│ ├ MP2_4me3_1.sorted.bam
-│ ├ MP2_4me3_2.sorted.bam
-│ ├ MP2_4me1_1.sorted.bam
-│ └ MP2_4me1_2.sorted.bam
+│ ├ Sample_In_1.sorted.bam
+│ ├ Sample_In_2.sorted.bam
+│ ├ Sample_27Ac_1.sorted.bam
+│ ├ Sample_27Ac_2.sorted.bam
+│ ├ Sample_27me3_1.sorted.bam
+│ ├ Sample_27me3_2.sorted.bam
+│ ├ Sample_4me3_1.sorted.bam
+│ ├ Sample_4me3_2.sorted.bam
+│ ├ Sample_4me1_1.sorted.bam
+│ └ Sample_4me1_2.sorted.bam
 │
 ├ histone-chipseq
 │ ├ cluster.json
 │ ├ config.yaml     # This is the file you need to edit for input. See below
 │ ├ README.md
 │ ├ rulegraph.png
+│ ├ run_rose2.sh    #can be used to submit the daina_rose2.bat script
 │ ├ scripts
+│ │ ├ hg19-blacklist.v2.bed
+│ │ ├ hg19.chrom.sizes
+│ │ ├ hg38-blacklist.v2.bed
+│ │ ├ hg38.chrom.sizes
 │ │ ├ nscRsc.py
 │ │ ├ run_spp.R
-│ │ └ wgEncodeDacMapabilityConsensusExcludable.bed  #These are blacklisted regions of hg19 from UCSC genomebrowser
+│ │ └ ROSE2_pipeline
+│ │   ├ daina_rose2.bat     #script to run ROSE2
+│ │   ├ ...
 │ ├ Snakefile
 │ └ snakemake.sh    #This is the file to submit to the cluster
 │
@@ -102,4 +109,13 @@ The NSC RSC values produced by that is not using the right input, so I recalcula
 ```
 Rscript histone-chipseq/scripts/run_spp.R  -c=*tagalign.gz -out={xcorr.text} -p=$SLURM_CPUS_PER_TASK -savp={xcorr.plot} -rf
 python histone-chipseq/scripts/nscRsc.py {input} {output}
+```
+
+##ROSE2
+ROSE2 must be run separately. First, change the name of the files in the script daina_rose2.bat.
+Then you can submit run_rose.sh
+```
+#change the files names
+sed -i 's/Sample/KP4/g' histone-chipseq/scripts/ROSE2_pipeline/daina_rose2.bat
+bash histone-chipseq/scripts/run_rose2.sh
 ```
