@@ -111,11 +111,11 @@ Rscript histone-chipseq/scripts/run_spp.R  -c=*tagalign.gz -out={xcorr.text} -p=
 python histone-chipseq/scripts/nscRsc.py {input} {output}
 ```
 
-##ROSE2
-ROSE2 must be run separately. First, change the name of the files in the script daina_rose2.bat.
-Then you can submit run_rose.sh
+## ROSE2 
+ROSE2 must be run separately. First, change the name of the files in the script daina_rose2.bat.  
+Then you can submit run_rose.sh. 
 ```
 #change the files names
 sed -i 's/Sample/KP4/g' histone-chipseq/scripts/ROSE2_pipeline/daina_rose2.bat
-bash histone-chipseq/scripts/run_rose2.sh
+sbatch --mem=10g histone-chipseq/scripts/run_rose2.sh
 ```
