@@ -117,5 +117,7 @@ Then you can submit run_rose.sh.
 ```
 #change the files names
 sed -i 's/Sample/KP4/g' histone-chipseq/scripts/ROSE2_pipeline/daina_rose2.bat
-sbatch --mem=10g histone-chipseq/scripts/run_rose2.sh
+#must submit the script in the same directory
+cd histone-chipseq/scripts/ROSE2_pipeline
+sbatch --mem=10g daina_rose2.bat
 ```
