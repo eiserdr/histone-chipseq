@@ -19,30 +19,30 @@ python ROSE2_main.py -g HG19 -i ../../../out/Callpeak/Broadpeak/Sample_27Ac_1_fi
 rm -r ../../../out/ROSE2/gff \
 ../../../out/ROSE2/mappedGFF
 ### Create a bed file of just super enhancers
-num_lines=$(wc -l < Sample_27Ac_1_filt_peaks_Enhancers_withSuper.bed)
-super_lines=$(awk '/description=\"Super/ {print FNR}' Sample_27Ac_1_filt_peaks_Enhancers_withSuper.bed)
+num_lines=$(wc -l < ../../../out/ROSE2/Sample_27Ac_1_filt_peaks_Enhancers_withSuper.bed)
+super_lines=$(awk '/description=\"Super/ {print FNR}' ../../../out/ROSE2/Sample_27Ac_1_filt_peaks_Enhancers_withSuper.bed)
 cut_off=$(($num_lines - $super_lines))
-tail -$cut_off Sample_27Ac_1_filt_peaks_Enhancers_withSuper.bed > Sample_27Ac_1_SuperEnhancers.bed
+tail -$cut_off ../../../out/ROSE2/Sample_27Ac_1_filt_peaks_Enhancers_withSuper.bed > ../../../out/ROSE2/Sample_27Ac_1_SuperEnhancers.bed
 
 python ROSE2_main.py -g HG19 -i ../../../out/Callpeak/Broadpeak/Sample_27Ac_2_filt_peaks.bed -r ../../../BamFiles/Sample_27Ac_2.sorted.bam -c ../../../BamFiles/Sample_In_merged.sorted.bam -o ../../../out/ROSE2 -t 2500 -s 12500
 ###Get rid of extraneous files
 rm -r ../../../out/ROSE2/gff \
 ../../../out/ROSE2/mappedGFF
 ###Make a bed file of just super enhancers.
-num_lines=$(wc -l < Sample_27Ac_2_filt_peaks_Enhancers_withSuper.bed)
-super_lines=$(awk '/description=\"Super/ {print FNR}' Sample_27Ac_2_filt_peaks_Enhancers_withSuper.bed)
+num_lines=$(wc -l < ../../../out/ROSE2/Sample_27Ac_2_filt_peaks_Enhancers_withSuper.bed)
+super_lines=$(awk '/description=\"Super/ {print FNR}' ../../../out/ROSE2/Sample_27Ac_2_filt_peaks_Enhancers_withSuper.bed)
 cut_off=$(($num_lines - $super_lines))
-tail -$cut_off Sample_27Ac_2_filt_peaks_Enhancers_withSuper.bed > Sample_27Ac_2_SuperEnhancers.bed
+tail -$cut_off ../../../out/ROSE2/Sample_27Ac_2_filt_peaks_Enhancers_withSuper.bed > ../../../out/ROSE2/Sample_27Ac_2_SuperEnhancers.bed
 
 python ROSE2_main.py -g HG19 -i ../../../out/Callpeak/Broadpeak/Sample_27Ac_merged_filt_peaks.bed -r ../../../BamFiles/Sample_27Ac_merged.sorted.bam -c ../../../BamFiles/Sample_In_merged.sorted.bam -o ../../../out/ROSE2 -t 2500 -s 12500
 rm -r ../../../out/ROSE2/gff \
 ../../../out/ROSE2/mappedGFF 
-num_lines=$(wc -l < Sample_27Ac_merged_filt_peaks_Enhancers_withSuper.bed)
-super_lines=$(awk '/description=\"Super/ {print FNR}' Sample_27Ac_merged_filt_peaks_Enhancers_withSuper.bed)
+num_lines=$(wc -l < ../../../out/ROSE2/Sample_27Ac_merged_filt_peaks_Enhancers_withSuper.bed)
+super_lines=$(awk '/description=\"Super/ {print FNR}' ../../../out/ROSE2/Sample_27Ac_merged_filt_peaks_Enhancers_withSuper.bed)
 cut_off=$(($num_lines - $super_lines))
-tail -$cut_off Sample_27Ac_merged_filt_peaks_Enhancers_withSuper.bed > Sample_27Ac_merged_SuperEnhancers.bed
+tail -$cut_off ../../../out/ROSE2/Sample_27Ac_merged_filt_peaks_Enhancers_withSuper.bed > ../../../out/ROSE2/Sample_27Ac_merged_SuperEnhancers.bed
 
-#Remove a few move extra files
+###Remove a few move extra files
 rm ../../../out/ROSE2/*12KB_STITCHED_TSS_DISTAL_ENHANCER_REGION_MAP.txt \
 ../../../out/ROSE2/*AllEnhancers* \
 ../../../out/ROSE2/*Enhancers_withSuperStretch.bed \
@@ -50,7 +50,7 @@ rm ../../../out/ROSE2/*12KB_STITCHED_TSS_DISTAL_ENHANCER_REGION_MAP.txt \
 ../../../out/ROSE2/*Enhancers_withStretch.bed \
 ../../../out/ROSE2/*StretchEnhancers.table.txt \
 ../../../out/ROSE2/*Plot_points_stretch.png
-###Chang ehte extension back to broadPeak
+###Change the extension back to broadPeak
 mv ../../../out/Callpeak/Broadpeak/Sample_27Ac_1_filt_peaks.bed ../../../out/Callpeak/Broadpeak/Sample_27Ac_1_filt_peaks.broadPeak
 mv ../../../out/Callpeak/Broadpeak/Sample_27Ac_2_filt_peaks.bed ../../../out/Callpeak/Broadpeak/Sample_27Ac_2_filt_peaks.broadPeak
 mv ../../../out/Callpeak/Broadpeak/Sample_27Ac_merged_filt_peaks.bed ../../../out/Callpeak/Broadpeak/Sample_27Ac_merged_filt_peaks.broadPeak
