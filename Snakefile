@@ -8,18 +8,24 @@ localrules: all
 workdir: ".."
 
 GENOME=config["genome"]
-CONTROL = config["control"]		#there is only one control, note that the CONTROL variable is not a list.
+
 SAMPLES_BROAD = config["samples_broad"]
 SAMPLES_NARROW = config["samples_narrow"]
 SAMPLES_SICER = config["samples_sicer"]
 ALL_CASES = SAMPLES_BROAD + SAMPLES_NARROW + SAMPLES_SICER
-ALL_SAMPLES = CONTROL.split() + ALL_CASES
+
+if config["control"].strip() == "none":			###Testing if there is a control
+	CONTROL = ""						#If there is no control, i set CONTROL to an empty string, also read as FALSE
+	ALL_SAMPLES = ALL_CASES
+else:
+	CONTROL = config["control"] 		#there is only one control, note that the CONTROL variable is not a list.
+	ALL_SAMPLES = CONTROL.split() + ALL_CASES
 
 ALL_BAM = expand("BamFiles/{sample}_{rep}.sorted.bam", sample = ALL_SAMPLES, rep = ["1","2","merged"])
 
-ALL_PEAKS = expand("out/Callpeak/Broadpeak/{sample}_{rep}_filt_peaks.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
-expand("out/Callpeak/Narrowpeak/{sample}_{rep}_filt_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
-expand("out/Callpeak/SICER/{sample}_{rep}_filt_W500-G1500-FDR0.01-island.bed", sample = SAMPLES_SICER, rep = ["1","2","merged"])
+ALL_PEAKS = expand("out/Callpeak/Broadpeak/{sample}_{rep}_filt_peaks.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"])# + \
+#expand("out/Callpeak/Narrowpeak/{sample}_{rep}_filt_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
+#expand("out/Callpeak/SICER/{sample}_{rep}_filt_W500-G1500-FDR0.01-island.bed", sample = SAMPLES_SICER, rep = ["1","2","merged"])
 
 ALL_SIGNAL = expand("out/Callpeak/Broadpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_BROAD, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
 expand("out/Callpeak/Narrowpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_NARROW, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
@@ -40,7 +46,7 @@ ALL_PHANTOM = expand("out/PhantomPeaks/{sample}_{rep}_NSC_RSC.txt", sample = ALL
 
 
 rule all:
-	input: ALL_BAM + ALL_PEAKS + ALL_SIGNAL + ALL_IDR + ALL_PHANTOM
+	input: ALL_BAM + ALL_PEAKS #+ ALL_SIGNAL + ALL_IDR + ALL_PHANTOM
 
 
 #rule sort_bam:
@@ -57,21 +63,38 @@ rule merge_bam:
 	output: "BamFiles/{sample}_merged.sorted.bam"
 	shell:
 		"samtools merge {output} {input}"
+#If there is an input, I only use the merged input here. else I set it to an empty string
+if CONTROL:
+	rule macs2_broad:
+		input:
+			case="BamFiles/{sample}.sorted.bam",
+			ctrl= "BamFiles/" + CONTROL + "_merged.sorted.bam" 			
+		output: 
+			"out/Callpeak/Broadpeak/{sample}_peaks.broadPeak", 
+			temp("out/Callpeak/Broadpeak/{sample}_treat_pileup.bdg"), 
+			temp("out/Callpeak/Broadpeak/{sample}_control_lambda.bdg"), 
+			temp("out/Callpeak/Broadpeak/{sample}_peaks.xls"), 
+			temp("out/Callpeak/Broadpeak/{sample}_peaks.gappedPeak")
+		#log:
+		#	"log/macs2_broad.{sample}.out"
+		shell:
+			"macs2 callpeak -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample} --outdir out/Callpeak/Broadpeak --broad --bw 150 --mfold 10 30 --bdg --nomodel --extsize 150  --SPMR"
+else:
+#no control
+	rule macs2_broad:
+		input:
+			case="BamFiles/{sample}.sorted.bam" 			
+		output: 
+			"out/Callpeak/Broadpeak/{sample}_peaks.broadPeak", 
+			temp("out/Callpeak/Broadpeak/{sample}_treat_pileup.bdg"), 
+			temp("out/Callpeak/Broadpeak/{sample}_control_lambda.bdg"), 
+			temp("out/Callpeak/Broadpeak/{sample}_peaks.xls"), 
+			temp("out/Callpeak/Broadpeak/{sample}_peaks.gappedPeak")
+		#log:
+		#	"log/macs2_broad.{sample}.out"
+		shell:
+			"macs2 callpeak -t {input.case} -f AUTO -g hs -n {wildcards.sample} --outdir out/Callpeak/Broadpeak --broad --bw 150 --mfold 10 30 --bdg --nomodel --extsize 150  --SPMR"
 
-rule macs2_broad:
-	input:
-		case="BamFiles/{sample}.sorted.bam",						#it knows that to only run it on samples specified by SAMPLES_BROAD
-		ctrl = "BamFiles/" + CONTROL + "_merged.sorted.bam"			#I only use the merged input here
-	output: 
-		"out/Callpeak/Broadpeak/{sample}_peaks.broadPeak", 
-		temp("out/Callpeak/Broadpeak/{sample}_treat_pileup.bdg"), 
-		temp("out/Callpeak/Broadpeak/{sample}_control_lambda.bdg"), 
-		temp("out/Callpeak/Broadpeak/{sample}_peaks.xls"), 
-		temp("out/Callpeak/Broadpeak/{sample}_peaks.gappedPeak")
-	#log:
-	#	"log/macs2_broad.{sample}.out"
-	shell:
-		"macs2 callpeak -t {input.case} -f AUTO -c {input.ctrl} -g hs -n {wildcards.sample} --outdir out/Callpeak/Broadpeak --broad --bw 150 --mfold 10 30 --bdg --nomodel --extsize 150  --SPMR"
 #temp() will remove those files once the other rules are done using them. 
 
 rule macs2_narrow:
@@ -275,8 +298,9 @@ rule blacklist:
 	shell:
 		"""
 		bedtools intersect -v -a {input} -b {params} > {output}
-		rm {input}	#I don't like deleting files like this. But I'm not sure how else to do that.
+		rm {input}	
 		"""	
+#I don't like deleting files like rm {input}. But I'm not sure how else to do that.
 
 #have to sort peaks by significance after blacklisting. I specify "filt" so that the blacklist occurs before sorting.  I don't think the order matters too much, but snakemake needs it.
 #only sort peak files

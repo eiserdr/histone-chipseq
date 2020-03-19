@@ -1,5 +1,6 @@
 --- 
-control: Acinar_In
+#If there is no control, enter 'none'
+control: none
 samples_broad: 
   - Acinar_27Ac
   - Acinar_4me1
