@@ -1,11 +1,11 @@
 --- 
-control: Sample_In
+control: Acinar_In
 samples_broad: 
-  - Sample_27Ac
-  - Sample_4me1
+  - Acinar_27Ac
+  - Acinar_4me1
 samples_narrow: 
-  - Sample_4me3
+  - Acinar_4me3
 samples_sicer: 
-  - Sample_27me3
+  - Acinar_27me3
 #hg19 or hg38
 genome: hg19
