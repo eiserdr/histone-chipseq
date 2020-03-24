@@ -24,12 +24,20 @@ else:
 ALL_BAM = expand("BamFiles/{sample}_{rep}.sorted.bam", sample = ALL_SAMPLES, rep = ["1","2","merged"])
 
 ALL_PEAKS = expand("out/Callpeak/Broadpeak/{sample}_{rep}_filt_peaks.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
-expand("out/Callpeak/Narrowpeak/{sample}_{rep}_filt_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
-expand("out/Callpeak/SICER/{sample}_{rep}_filt_W500-G1500-FDR0.01-island.bed", sample = SAMPLES_SICER, rep = ["1","2","merged"])
+expand("out/Callpeak/Narrowpeak/{sample}_{rep}_filt_peaks.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"])
 
 ALL_SIGNAL = expand("out/Callpeak/Broadpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_BROAD, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
-expand("out/Callpeak/Narrowpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_NARROW, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
-expand("out/Callpeak/SICER/Signal/{sample}_{rep}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", sample = SAMPLES_SICER, rep = ["1","2","merged"])
+expand("out/Callpeak/Narrowpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_NARROW, rep = ["1","2","merged"], signal = ["ppois", "FE"])
+
+if CONTROL:			###Testing if there is a control
+	ALL_PEAKS = ALL_PEAKS + expand("out/Callpeak/SICER/{sample}_{rep}_filt_W500-G1500-FDR0.01-island.bed", sample = SAMPLES_SICER, rep = ["1","2","merged"])
+	ALL_SINGAL = ALL_SIGNAL + expand("out/Callpeak/SICER/Signal/{sample}_{rep}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", sample = SAMPLES_SICER, rep = ["1","2","merged"])
+else:				###If there is no control, sicer will have a different output name
+	ALL_PEAKS = ALL_PEAKS + expand("out/Callpeak/SICER/{sample}_{rep}_filt_W500-G1500-scoreisland.bed", sample = SAMPLES_SICER, rep = ["1","2","merged"])
+	ALL_SINGAL = ALL_SIGNAL + expand("out/Callpeak/SICER/Signal/{sample}_{rep}-W500-G1500-normalized.wig", sample = SAMPLES_SICER, rep = ["1","2","merged"])
+
+
+
 
 ALL_IDR = expand("out/IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
 expand("out/IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
@@ -98,8 +106,8 @@ if CONTROL:
 
 	rule sicer:
 		input:
-			case="out/{sample}.bed",
-			ctrl= "out/" + CONTROL + "_merged.bed" #Only use merged input file
+			case="BamFiles/{sample}.bed",
+			ctrl= "BamFiles/" + CONTROL + "_merged.bed" #Only use merged input file
 			##Maybe use a shadow directory here
 		output: 
 			"{sample}-W500-G1500-FDR0.01-island.bed",
@@ -114,7 +122,20 @@ if CONTROL:
 		#	"snakemakelog/sicer.{sample}.out"
 		shell:
 			"sicer -t {input.case} -c {input.ctrl} -s {params.genome} -rt 1 -w 500 -f 150 -egf .8 -g 1500 -fdr 0.01 -cpu $(($SLURM_CPUS_PER_TASK/2)) --significant_reads"
-
+	rule mv_sicer:
+		input:
+			peak="{sample}-W500-G1500-FDR0.01-island.bed", 
+			sig="{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
+		output:
+			"out/Callpeak/SICER/{sample}_W500-G1500-FDR0.01-island.bed", 
+			"out/Callpeak/SICER/Signal/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
+		shell:
+			"""
+			mv {input.peak} out/Callpeak/SICER
+			mv out/Callpeak/SICER/{wildcards.sample}-W500-G1500-FDR0.01-island.bed out/Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #change name to include an underscore.  This is important for blacklist
+			sed -i 's/\t$//g' out/Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #sicer leaves a trailing tab character at the end of every line. For blacklist to work, it has to be removed
+			mv {input.sig} out/Callpeak/SICER/Signal/{wildcards.sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig
+			"""
 	rule idr_macs2_broad:
 		input: 
 			case="BamFiles/{sample}_{rep}.sorted.bam",
@@ -196,21 +217,32 @@ else: #no control
 
 	rule sicer:
 		input:
-			case="out/{sample}.bed"
+			case="BamFiles/{sample}.bed"
 		output: 
-			"{sample}-W500-G1500-FDR0.01-island.bed",
-			"{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", 
-			temp("{sample}-W500-G1500-FDR0.01-islandfiltered.bed"), 
 			temp("{sample}-W500-G1500.scoreisland"), 
-			temp("{sample}-W500-normalized.wig"), 
-			temp("{sample}-W500-G1500-islands-summary")
+			temp("{sample}-W500-normalized.wig")
 		threads: 16
 		params: genome = GENOME
 		#log:
 		#	"snakemakelog/sicer.{sample}.out"
 		shell:
-			"sicer -t {input.case} -s {params.genome} -rt 1 -w 500 -f 150 -egf .8 -g 1500 -fdr 0.01 -cpu $(($SLURM_CPUS_PER_TASK/2)) --significant_reads"
+			"sicer -t {input.case} -s {params.genome} -rt 1 -w 500 -f 150 -egf .8 -g 1500 -fdr 0.01 -cpu $(($SLURM_CPUS_PER_TASK/2)) -e 1000"
+#sicer2 won't run if I specify an out directory. So I have to make another rule to move the files to the right directory		
 
+	rule mv_sicer:
+		input:
+			peak="{sample}-W500-G1500.scoreisland", 
+			sig="{sample}-W500-normalized.wig"
+		output:
+			"out/Callpeak/SICER/{sample}_W500-G1500-scoreisland.bed", 
+			"out/Callpeak/SICER/Signal/{sample}-W500-normalized.wig"
+		shell:
+			"""
+			mv {input.peak} out/Callpeak/SICER
+			mv out/Callpeak/SICER/{wildcards.sample}-W500-G1500.scoreisland out/Callpeak/SICER/{wildcards.sample}_W500-G1500-scoreisland.bed #change name to include an underscore.  This is important for blacklist
+			sed -i 's/\t$//g' out/Callpeak/SICER/{wildcards.sample}_W500-G1500-scoreisland.bed #sicer leaves a trailing tab character at the end of every line. For blacklist to work, it has to be removed
+			mv {input.sig} out/Callpeak/SICER/Signal/
+			"""
 	rule idr_macs2_broad:
 		input: 
 			case="BamFiles/{sample}_{rep}.sorted.bam"
@@ -262,28 +294,13 @@ rule bamtobed:
 	input:
 		"BamFiles/{sample}.sorted.bam"
 	output:
-		temp("out/{sample}.bed") 	#Maybe should be temp
+		temp("BamFiles/{sample}.bed") 	#Maybe should be temp
 	#log:
 	#	"log/bamtobed.{sample}.out"
 	shell:
 		"bedtools bamtobed -i {input} > {output}"
 
-#sicer2 won't run if I specify an out directory. So I have to make another rule to move the files to the right directory		
 
-rule mv_sicer:
-	input:
-		peak="{sample}-W500-G1500-FDR0.01-island.bed", 
-		sig="{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
-	output:
-		"out/Callpeak/SICER/{sample}_W500-G1500-FDR0.01-island.bed", 
-		"out/Callpeak/SICER/Signal/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
-	shell:
-		"""
-		mv {input.peak} out/Callpeak/SICER
-		mv out/Callpeak/SICER/{wildcards.sample}-W500-G1500-FDR0.01-island.bed out/Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #change name to include an underscore.  This is important for blacklist
-		sed -i 's/\t$//g' out/Callpeak/SICER/{wildcards.sample}_W500-G1500-FDR0.01-island.bed #sicer leaves a trailing tab character at the end of every line. For blacklist to work, it has to be removed
-		mv {input.sig} out/Callpeak/SICER/Signal/{wildcards.sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig
-		"""
 		
 ###Signal Files ####
 #sicer already makes signal files, but I need to for macs2
