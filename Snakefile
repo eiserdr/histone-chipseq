@@ -23,7 +23,7 @@ expand("out/Callpeak/SICER/{sample}_{rep}_filt_W500-G1500-FDR0.01-island.bed", s
 
 ALL_SIGNAL = expand("out/Callpeak/Broadpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_BROAD, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
 expand("out/Callpeak/Narrowpeak/Signal/{sample}_{rep}_{signal}.bw", sample = SAMPLES_NARROW, rep = ["1","2","merged"], signal = ["ppois", "FE"]) + \
-expand("out/Callpeak/SICER/Signal/{sample}_{rep}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", sample = SAMPLES_SICER, rep = ["1","2","merged"])
+expand("out/Callpeak/SICER/Signal/{sample}_{rep}-W500-G1500-FDR0.01-islandfiltered-normalized.bw", sample = SAMPLES_SICER, rep = ["1","2","merged"])
 
 ALL_IDR = expand("out/IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.narrowPeak", sample = SAMPLES_NARROW, rep = ["1","2","merged"]) + \
 expand("out/IDR/Callpeak/{sample}_{rep}_p0.01_filt_peaks.sorted.broadPeak", sample = SAMPLES_BROAD, rep = ["1","2","merged"]) + \
@@ -126,7 +126,7 @@ rule mv_sicer:
 		sig="{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
 	output:
 		"out/Callpeak/SICER/{sample}_W500-G1500-FDR0.01-island.bed", 
-		"out/Callpeak/SICER/Signal/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
+		temp("out/Callpeak/SICER/Signal/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig")
 	shell:
 		"""
 		mv {input.peak} out/Callpeak/SICER
@@ -325,3 +325,15 @@ rule phantompeak_NSC_RSC:
 	shell:
 		"python histone-chipseq/scripts/nscRsc.py {input} {output}"
 
+#ucsc module
+rule wigToBw:
+	input:
+		"out/Callpeak/SICER/Signal/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"
+	output:
+		"out/Callpeak/SICER/Signal/{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.bw"
+	params: chrom_sizes= "histone-chipseq/scripts/" + GENOME + ".chrom.sizes"
+	shell:
+		"""
+		wigToBigWig {input} {params.chrom_sizes} {output}
+		"""
+	

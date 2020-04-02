@@ -1,11 +1,11 @@
 --- 
-control: Acinar_In
+control: MP2_In
 samples_broad: 
-  - Acinar_27Ac
-  - Acinar_4me1
+  - MP2_27Ac
+  - MP2_4me1
 samples_narrow: 
-  - Acinar_4me3
+  - MP2_4me3
 samples_sicer: 
-  - Acinar_27me3
+  - MP2_27me3
 #hg19 or hg38
 genome: hg19
