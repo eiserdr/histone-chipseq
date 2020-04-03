@@ -106,10 +106,9 @@ rule sicer:
 	input:
 		case="out/{sample}.bed",
 		ctrl= "out/" + CONTROL + "_merged.bed" #Only use merged input file
-		##Maybe use a shadow directory here
 	output: 
-		"{sample}-W500-G1500-FDR0.01-island.bed",
-		"{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig", 
+		temp("{sample}-W500-G1500-FDR0.01-island.bed"),
+		temp("{sample}-W500-G1500-FDR0.01-islandfiltered-normalized.wig"), 
 		temp("{sample}-W500-G1500-FDR0.01-islandfiltered.bed"), 
 		temp("{sample}-W500-G1500.scoreisland"), 
 		temp("{sample}-W500-normalized.wig"), 
